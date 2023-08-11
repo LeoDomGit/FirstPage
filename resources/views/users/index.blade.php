@@ -34,6 +34,17 @@
         </div>
     </div>
     <div class="row">
+        <div class="col-md-8">
+            <ul class="list-group">
+                @foreach ($userroles as $key => $item)
+                    @if ($key == 0)
+                        <li class="list-group-item active">{{ $item->name }}</li>
+                    @else
+                        <li class="list-group-item">{{ $item->name }}</li>
+                    @endif
+                @endforeach
+            </ul>
+        </div>
         <div class="col-md-4">
             <ul class="list-group">
                 @foreach ($userroles as $key => $item)
