@@ -16,5 +16,7 @@ use App\Http\Controllers\PostController;
 */
 Route::get('/',[UserController::class,'index']);
 Route::post('/addLoaiTaiKhoan',[UserController::class,'TaoLoaiTaiKhoan']);
+Route::post('/editLoaiTaiKhoan',[UserController::class,'editLoaiTaiKhoan']);
+Route::post('/deleteLoaiTaiKhoan',[UserController::class,'deleteLoaiTaiKhoan']);
 
 

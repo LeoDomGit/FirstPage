@@ -38,17 +38,41 @@ class UserController extends Controller
        /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function editLoaiTaiKhoan(Request $request,Validator $validation,UserRoleM $UserRoleM)
     {
-        echo "Create User";
+        $validation = Validator::make($request->all(), [
+            'id'=>'required|exists:userroles,id',
+            'tenLoai'=>'required|unique:userroles,name',
+        ],[
+            'id.required'=>'Thiếu mã loại tài khoản',
+            'id.exists'=>'Mã loại tài khoản không tồn tại',
+            'tenLoai.required'=>'Thiếu tên loại tài khoản',
+            'tenLoai.unique'=>'Tên loại bị trùng',
+        ]); 
+        if ($validation->fails()) {
+            return response()->json(['check' => false,'msg'=>$validation->errors()]);
+        }
+        UserRoleM::where('id',$request->id)->update(['name'=>$request->tenLoai,'updated_at'=>now()]);
+        return response()->json(['check'=>true]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function deleteLoaiTaiKhoan(Request $request,Validator $validation,UserRoleM $UserRoleM)
     {
-        //
+        $validation = Validator::make($request->all(), [
+            'id'=>'required|exists:userroles,id',
+           
+        ],[
+            'id.required'=>'Thiếu mã loại tài khoản',
+            'id.exists'=>'Mã loại tài khoản không tồn tại',
+        ]); 
+        if ($validation->fails()) {
+            return response()->json(['check' => false,'msg'=>$validation->errors()]);
+        }
+        UserRoleM::where('id',$request->id)->delete();
+        return response()->json(['check'=>true]);
     }
 
     /**

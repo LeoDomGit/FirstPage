@@ -6,12 +6,6 @@
         <li class="nav-item">
             <a href="#" class="nav-link" id="themLTKBtn">Thêm</a>
         </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link">Xóa</a>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link">Sửa</a>
-        </li>
     </ul>
 @endsection
 @section('main')
@@ -34,24 +28,34 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-3">
             <ul class="list-group">
                 @foreach ($userroles as $key => $item)
                     @if ($key == 0)
-                        <li class="list-group-item active">{{ $item->name }}</li>
+                        <li class="list-group-item active " data-id="{{ $item->id }}">
+                            <div class="row ">
+                                <div class="col-md-6 editUserRole ">
+                                    {{ $item->name }}
+                                </div>
+                                <div class="col-md">
+                                    <button class="deleteUserRoleBtn btn btn-danger"
+                                        data-id="{{ $item->id }}">Xóa</button>
+                                </div>
+                            </div>
+                        </li>
                     @else
-                        <li class="list-group-item">{{ $item->name }}</li>
-                    @endif
-                @endforeach
-            </ul>
-        </div>
-        <div class="col-md-4">
-            <ul class="list-group">
-                @foreach ($userroles as $key => $item)
-                    @if ($key == 0)
-                        <li class="list-group-item active">{{ $item->name }}</li>
-                    @else
-                        <li class="list-group-item">{{ $item->name }}</li>
+                        <li class="list-group-item " data-id="{{ $item->id }}">
+                            <div class="row">
+                                <div class="col-md-6 editUserRole">
+                                    {{ $item->name }}
+                                </div>
+                                <div class="col-md">
+                                    <button class="deleteUserRoleBtn btn btn-danger"
+                                        data-id="{{ $item->id }}">Xóa</button>
+                                </div>
+                            </div>
+
+                        </li>
                     @endif
                 @endforeach
             </ul>
@@ -59,8 +63,210 @@
     </div>
     <script>
         $(document).ready(function() {
-            ThemLoaiTaiKhoan()
+            ThemLoaiTaiKhoan();
+            editLoaiTaiKhoan();
+            deleteUserRole();
+
         });
+
+        function deleteUserRole() {
+            $(".deleteUserRoleBtn").click(function(e) {
+                e.preventDefault();
+                var id = $(this).attr('data-id');
+                Swal.fire({
+                    icon:'question',
+                    text: 'Có xóa không ?',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Đúng',
+                    denyButtonText: `Không`,
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "post",
+                            url: "/deleteLoaiTaiKhoan",
+                            data: {
+                                id:id
+                            },
+                            dataType: "JSON",
+                            success: function (res) {
+                                if (res.check == true) {
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 3000,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.addEventListener('mouseenter',
+                                                Swal
+                                                .stopTimer)
+                                            toast.addEventListener('mouseleave',
+                                                Swal
+                                                .resumeTimer)
+                                        }
+                                    })
+
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: 'Đã xóa thành công'
+                                    }).then(() => {
+                                        window.location.reload();
+                                    })
+                                }
+                                if (res.msg.id) {
+                                    $("#submitLoaiTaiKhoan").attr('disabled', false);
+
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 1700,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.addEventListener('mouseenter',
+                                                Swal
+                                                .stopTimer)
+                                            toast.addEventListener('mouseleave',
+                                                Swal
+                                                .resumeTimer)
+                                        }
+                                    })
+
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: res.msg.id
+                                    })
+                                }
+                            }
+                        });
+                    } else if (result.isDenied) {
+                    }
+                })
+            });
+        }
+
+        function editLoaiTaiKhoan() {
+            $('.editUserRole').click(function(e) {
+                e.preventDefault();
+                var id = $(this).attr('data-id');
+                var old = $(this).text().trim();
+                // Trim :Lọc khoảng trắng dư ở đầu và cuối chuỗi
+                $("#tenLoaiTaiKhoan").val(old);
+                $("#LoaiTaiKhoanModal").modal('show');
+                $('#submitLoaiTaiKhoan').click(function(e) {
+                    e.preventDefault();
+                    var name = $("#tenLoaiTaiKhoan").val().trim();
+                    if (name == old) {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter',
+                                    Swal
+                                    .stopTimer)
+                                toast.addEventListener('mouseleave',
+                                    Swal
+                                    .resumeTimer)
+                            }
+                        })
+
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Tên loại chưa được thay đổi'
+                        })
+                    } else {
+                        $("#submitLoaiTaiKhoan").attr('disabled', 'disabled');
+                        $.ajax({
+                            type: "post",
+                            url: "/editLoaiTaiKhoan",
+                            data: {
+                                id: id,
+                                tenLoai: name
+                            },
+                            dataType: "JSON",
+                            success: function(res) {
+                                if (res.check == true) {
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 3000,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.addEventListener('mouseenter',
+                                                Swal
+                                                .stopTimer)
+                                            toast.addEventListener('mouseleave',
+                                                Swal
+                                                .resumeTimer)
+                                        }
+                                    })
+
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: 'Đã sửa thành công'
+                                    }).then(() => {
+                                        window.location.reload();
+                                    })
+                                }
+                                if (res.msg.tenLoai) {
+                                    $("#submitLoaiTaiKhoan").attr('disabled', false);
+
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 1700,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.addEventListener('mouseenter',
+                                                Swal
+                                                .stopTimer)
+                                            toast.addEventListener('mouseleave',
+                                                Swal
+                                                .resumeTimer)
+                                        }
+                                    })
+
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: res.msg.tenLoai
+                                    })
+                                } else if (res.msg.id) {
+                                    $("#submitLoaiTaiKhoan").attr('disabled', false);
+
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 1700,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.addEventListener('mouseenter',
+                                                Swal
+                                                .stopTimer)
+                                            toast.addEventListener('mouseleave',
+                                                Swal
+                                                .resumeTimer)
+                                        }
+                                    })
+
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: res.msg.id
+                                    })
+                                }
+                            }
+                        });
+                    };
+                });
+            })
+        }
 
         function ThemLoaiTaiKhoan() {
             $("#themLTKBtn").click(function(e) {
