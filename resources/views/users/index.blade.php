@@ -40,13 +40,16 @@
         </div>
         <div class="modal-body">
           <div class="row">
-            <div class="col-md-4">
-                <input type="text" placeholder="Username" class="form-control">
+            <div class="col-md-3">
+                <input type="text" placeholder="Username" id="username" class="form-control">
             </div>
-            <div class="col-md-4">
-                <input type="text" placeholder="Mật khẩu" class="form-control">
+            <div class="col-md-3">
+                <input type="text" placeholder="Mật khẩu" id="password" class="form-control">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <input type="text" placeholder="Email" id="email" class="form-control">
+            </div>
+            <div class="col-md-3">
                 <select name="" id="idRole" class="form-control">
                     @foreach ($userroles as $item)
                         <option value="{{$item->id}}">{{$item->name}}</option>
@@ -57,7 +60,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-          <button type="button" class="btn btn-primary">Lưu</button>
+          <button type="button" class="btn btn-primary" id="submitUserBtn">Lưu</button>
         </div>
       </div>
     </div>
