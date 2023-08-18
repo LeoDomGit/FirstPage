@@ -98,7 +98,9 @@
         </div>
     </div>
     <script>
-        const Toast = Swal.mixin({
+
+        $(document).ready(function() {
+            const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
@@ -113,7 +115,6 @@
                     .resumeTimer)
             }
         })
-        $(document).ready(function() {
             ThemLoaiTaiKhoan();
             editLoaiTaiKhoan();
             deleteUserRole();
@@ -132,6 +133,7 @@
                     var email = $("#email").val().trim();
                     var idRole = $("#idRole option:selected").val();
                     if (username == '') {
+                        
                         Toast.fire({
                             icon: 'error',
                             title: 'Thiếu username'
@@ -147,6 +149,21 @@
                             title: 'Thiếu email'
                         })
                     } else {
+                        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter',
+                    Swal
+                    .stopTimer)
+                toast.addEventListener('mouseleave',
+                    Swal
+                    .resumeTimer)
+            }
+        })
                         $.ajax({
                             type: "post",
                             url: "/createUser",
@@ -166,6 +183,7 @@
                                         window.location.reload();
                                     })
                                 } else if (res.check == false) {
+                                    console.log(res);
                                     if (res.msg.username) {
                                         Toast.fire({
                                             icon: 'error',
@@ -180,6 +198,11 @@
                                         Toast.fire({
                                             icon: 'error',
                                             title: res.msg.idRole
+                                        })
+                                    }else if(res.msg.email){
+                                        Toast.fire({
+                                            icon: 'error',
+                                            title: res.msg.email
                                         })
                                     }
                                 }

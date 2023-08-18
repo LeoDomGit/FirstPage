@@ -18,5 +18,7 @@ Route::get('/',[UserController::class,'index']);
 Route::post('/addLoaiTaiKhoan',[UserController::class,'TaoLoaiTaiKhoan']);
 Route::post('/editLoaiTaiKhoan',[UserController::class,'editLoaiTaiKhoan']);
 Route::post('/deleteLoaiTaiKhoan',[UserController::class,'deleteLoaiTaiKhoan']);
+// ====================================
+Route::post('/createUser',[UserController::class,'createUser']);
 
 
