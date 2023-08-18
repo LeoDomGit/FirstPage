@@ -6,6 +6,9 @@
         <li class="nav-item">
             <a href="#" class="nav-link" id="themLTKBtn">Thêm</a>
         </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link" id="themTaiKhoanBtn">Thêm tài khoản</a>
+        </li>
     </ul>
 @endsection
 @section('main')
@@ -27,6 +30,38 @@
             </div>
         </div>
     </div>
+    <!-- Modal -->
+<div class="modal fade" id="TaiKhoanModal" tabindex="-1" aria-labelledby="TaiKhoanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="TaiKhoanModalLabel">Modal Tài khoản</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-4">
+                <input type="text" placeholder="Username" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <input type="text" placeholder="Mật khẩu" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <select name="" id="idRole" class="form-control">
+                    @foreach ($userroles as $item)
+                        <option value="{{$item->id}}">{{$item->name}}</option>
+                    @endforeach
+                </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          <button type="button" class="btn btn-primary">Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
     <div class="row">
         <div class="col-md-3">
             <ul class="list-group">
@@ -66,9 +101,16 @@
             ThemLoaiTaiKhoan();
             editLoaiTaiKhoan();
             deleteUserRole();
+            themTaiKhoan();
 
         });
-
+        function themTaiKhoan(){
+            $("#themTaiKhoanBtn").click(function (e) { 
+                e.preventDefault();
+                $("#TaiKhoanModal").modal('show');
+            });
+        }
+        // ==================================
         function deleteUserRole() {
             $(".xoaLTK").click(function(e) {
                 e.preventDefault();
@@ -146,6 +188,7 @@
                 })
             });
         }
+        // ==================================
 
         function editLoaiTaiKhoan() {
             $('.editUserRole').click(function(e) {
@@ -267,7 +310,7 @@
                 });
             })
         }
-
+        // ==================================
         function ThemLoaiTaiKhoan() {
             $("#themLTKBtn").click(function(e) {
                 e.preventDefault();
