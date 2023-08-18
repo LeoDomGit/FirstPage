@@ -31,40 +31,40 @@
         </div>
     </div>
     <!-- Modal -->
-<div class="modal fade" id="TaiKhoanModal" tabindex="-1" aria-labelledby="TaiKhoanModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="TaiKhoanModalLabel">Modal Tài khoản</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal fade" id="TaiKhoanModal" tabindex="-1" aria-labelledby="TaiKhoanModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="TaiKhoanModalLabel">Modal Tài khoản</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <input type="text" placeholder="Username" id="username" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" placeholder="Mật khẩu" id="password" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" placeholder="Email" id="email" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <select name="" id="idRole" class="form-control">
+                                @foreach ($userroles as $item)
+                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="submitUserBtn">Lưu</button>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-3">
-                <input type="text" placeholder="Username" id="username" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <input type="text" placeholder="Mật khẩu" id="password" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <input type="text" placeholder="Email" id="email" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <select name="" id="idRole" class="form-control">
-                    @foreach ($userroles as $item)
-                        <option value="{{$item->id}}">{{$item->name}}</option>
-                    @endforeach
-                </select>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-          <button type="button" class="btn btn-primary" id="submitUserBtn">Lưu</button>
-        </div>
-      </div>
     </div>
-  </div>
     <div class="row">
         <div class="col-md-3">
             <ul class="list-group">
@@ -76,8 +76,7 @@
                                     {{ $item->name }}
                                 </div>
                                 <div class="col-md">
-                                    <button class="xoaLTK btn btn-danger"
-                                        data-id="{{ $item->id }}">Xóa</button>
+                                    <button class="xoaLTK btn btn-danger" data-id="{{ $item->id }}">Xóa</button>
                                 </div>
                             </div>
                         </li>
@@ -88,8 +87,7 @@
                                     {{ $item->name }}
                                 </div>
                                 <div class="col-md">
-                                    <button class="xoaLTK btn btn-danger"
-                                        data-id="{{ $item->id }}">Xóa</button>
+                                    <button class="xoaLTK btn btn-danger" data-id="{{ $item->id }}">Xóa</button>
                                 </div>
                             </div>
 
@@ -100,6 +98,21 @@
         </div>
     </div>
     <script>
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter',
+                    Swal
+                    .stopTimer)
+                toast.addEventListener('mouseleave',
+                    Swal
+                    .resumeTimer)
+            }
+        })
         $(document).ready(function() {
             ThemLoaiTaiKhoan();
             editLoaiTaiKhoan();
@@ -107,10 +120,73 @@
             themTaiKhoan();
 
         });
-        function themTaiKhoan(){
-            $("#themTaiKhoanBtn").click(function (e) { 
+
+        function themTaiKhoan() {
+            $("#themTaiKhoanBtn").click(function(e) {
                 e.preventDefault();
                 $("#TaiKhoanModal").modal('show');
+                $("#submitUserBtn").click(function(e) {
+                    e.preventDefault();
+                    var username = $("#username").val().trim();
+                    var password = $("#password").val().trim();
+                    var email = $("#email").val().trim();
+                    var idRole = $("#idRole option:selected").val();
+                    if (username == '') {
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Thiếu username'
+                        })
+                    } else if (password == '') {
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Thiếu mật khẩu'
+                        })
+                    } else if (email == '') {
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Thiếu email'
+                        })
+                    } else {
+                        $.ajax({
+                            type: "post",
+                            url: "/createUser",
+                            data: {
+                                username: username,
+                                password: password,
+                                email: email,
+                                idRole:idRole
+                            },
+                            dataType: "JSON",
+                            success: function(res) {
+                                if (res.check == true) {
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: 'Đã thêm thành công'
+                                    }).then(() => {
+                                        window.location.reload();
+                                    })
+                                } else if (res.check == false) {
+                                    if (res.msg.username) {
+                                        Toast.fire({
+                                            icon: 'error',
+                                            title: res.msg.username
+                                        })
+                                    }else if(res.msg.password){
+                                        Toast.fire({
+                                            icon: 'error',
+                                            title: res.msg.password
+                                        })
+                                    }else if(res.msg.idRole){
+                                        Toast.fire({
+                                            icon: 'error',
+                                            title: res.msg.idRole
+                                        })
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
             });
         }
         // ==================================
@@ -119,7 +195,7 @@
                 e.preventDefault();
                 var id = $(this).attr('data-id');
                 Swal.fire({
-                    icon:'question',
+                    icon: 'question',
                     text: 'Có xóa không ?',
                     showDenyButton: true,
                     showCancelButton: false,
@@ -132,10 +208,10 @@
                             type: "post",
                             url: "/deleteLoaiTaiKhoan",
                             data: {
-                                id:id
+                                id: id
                             },
                             dataType: "JSON",
-                            success: function (res) {
+                            success: function(res) {
                                 if (res.check == true) {
                                     const Toast = Swal.mixin({
                                         toast: true,
@@ -186,8 +262,7 @@
                                 }
                             }
                         });
-                    } else if (result.isDenied) {
-                    }
+                    } else if (result.isDenied) {}
                 })
             });
         }
