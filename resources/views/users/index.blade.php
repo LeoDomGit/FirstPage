@@ -38,7 +38,7 @@
                                     {{ $item->name }}
                                 </div>
                                 <div class="col-md">
-                                    <button class="deleteUserRoleBtn btn btn-danger"
+                                    <button class="xoaLTK btn btn-danger"
                                         data-id="{{ $item->id }}">Xóa</button>
                                 </div>
                             </div>
@@ -50,7 +50,7 @@
                                     {{ $item->name }}
                                 </div>
                                 <div class="col-md">
-                                    <button class="deleteUserRoleBtn btn btn-danger"
+                                    <button class="xoaLTK btn btn-danger"
                                         data-id="{{ $item->id }}">Xóa</button>
                                 </div>
                             </div>
@@ -70,7 +70,7 @@
         });
 
         function deleteUserRole() {
-            $(".deleteUserRoleBtn").click(function(e) {
+            $(".xoaLTK").click(function(e) {
                 e.preventDefault();
                 var id = $(this).attr('data-id');
                 Swal.fire({
