@@ -22,4 +22,7 @@ Route::post('/deleteLoaiTaiKhoan',[UserController::class,'deleteLoaiTaiKhoan']);
 Route::post('/createUser',[UserController::class,'createUser']);
 
 Route::get('/sendmail',[UserController::class,'sendMail']);
+Route::get('/login',[UserController::class,'Login']);
+Route::post('/checkLogin',[UserController::class,'checkLogin']);
+
 

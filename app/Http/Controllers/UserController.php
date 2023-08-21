@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\demoMail;
+use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
     /**
@@ -111,12 +112,37 @@ class UserController extends Controller
         Mail::to($request->email)->send(new demoMail($mailData));
         return response()->json(['check'=>true]);
     }
+     /**
+     * Display the specified resource.
+     */
+    public function Login()
+    {
+        return view('users.login');
+    }
+
     /**
      * Display the specified resource.
      */
-    public function sendMail()
+    public function checkLogin(Request $request,Validator $validation,User $User)
     {
+        $validation = Validator::make($request->all(), [
+            'username'=>'required',
+            'password'=>'required',
 
+        ],[
+            'username.required'=>'Thiếu tên đăng nhập',
+            'password.required'=>'Thiếu mật khẩu',
+           
+        ]); 
+        if ($validation->fails()) {
+            return response()->json(['check' => false,'msg'=>$validation->errors()]);
+        }
+        if (Auth::attempt(['name'=>$request->username,'password'=>$request->password], true)) {
+            return response()->json(['check'=>true]);
+        }else{
+            return response()->json(['check'=>false]);
+
+        }
     }
 
     /**
