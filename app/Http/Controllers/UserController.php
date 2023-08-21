@@ -85,13 +85,12 @@ class UserController extends Controller
     {
         $validation = Validator::make($request->all(), [
             'username'=>'required',
-            'password'=>'required',
+           
             'email'=>'required|email|unique:users,email',
             'idRole'=>'required|exists:userroles,id',
            
         ],[
             'username.required'=>'Thiếu tên đăng nhập',
-            'password.required'=>'Thiếu mật khẩu',
             'email.required'=>'Thiếu email',
             'email.unique'=>'Email đã được đăng ký',
             'email.email'=>'Email không đúng định dạng',
@@ -101,7 +100,15 @@ class UserController extends Controller
         if ($validation->fails()) {
             return response()->json(['check' => false,'msg'=>$validation->errors()]);
         }
-        User::create(['name'=>$request->username,'password'=>Hash::make($request->password),'email'=>$request->email,'idRole'=>$request->idRole,'created_at'=>now()]);
+        $password=random_int(10000,99999);
+        User::create(['name'=>$request->username,'password'=>Hash::make($password),'email'=>$request->email,'idRole'=>$request->idRole,'created_at'=>now()]);
+        //Email nhận 
+        $mailData = [
+            'title'=>'Email đăng ký thành viên mới',
+            'username'=>$request->username,
+            'password'=>$password,
+        ];
+        Mail::to($request->email)->send(new demoMail($mailData));
         return response()->json(['check'=>true]);
     }
     /**
@@ -109,11 +116,7 @@ class UserController extends Controller
      */
     public function sendMail()
     {
-        //Email nhận 
-        $mailData = [
-            'name'=>'Trung Thành'
-        ];
-        Mail::to('leodomsolar@gmail.com')->send(new demoMail($mailData));
+
     }
 
     /**

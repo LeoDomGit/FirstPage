@@ -40,16 +40,13 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <input type="text" placeholder="Username" id="username" class="form-control">
                         </div>
-                        <div class="col-md-3">
-                            <input type="text" placeholder="Mật khẩu" id="password" class="form-control">
-                        </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <input type="text" placeholder="Email" id="email" class="form-control">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <select name="" id="idRole" class="form-control">
                                 @foreach ($userroles as $item)
                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -129,7 +126,6 @@
                 $("#submitUserBtn").click(function(e) {
                     e.preventDefault();
                     var username = $("#username").val().trim();
-                    var password = $("#password").val().trim();
                     var email = $("#email").val().trim();
                     var idRole = $("#idRole option:selected").val();
                     if (username == '') {
@@ -137,11 +133,6 @@
                         Toast.fire({
                             icon: 'error',
                             title: 'Thiếu username'
-                        })
-                    } else if (password == '') {
-                        Toast.fire({
-                            icon: 'error',
-                            title: 'Thiếu mật khẩu'
                         })
                     } else if (email == '') {
                         Toast.fire({
@@ -169,7 +160,6 @@
                             url: "/createUser",
                             data: {
                                 username: username,
-                                password: password,
                                 email: email,
                                 idRole:idRole
                             },
@@ -188,11 +178,6 @@
                                         Toast.fire({
                                             icon: 'error',
                                             title: res.msg.username
-                                        })
-                                    }else if(res.msg.password){
-                                        Toast.fire({
-                                            icon: 'error',
-                                            title: res.msg.password
                                         })
                                     }else if(res.msg.idRole){
                                         Toast.fire({
