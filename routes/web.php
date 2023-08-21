@@ -21,4 +21,5 @@ Route::post('/deleteLoaiTaiKhoan',[UserController::class,'deleteLoaiTaiKhoan']);
 // ====================================
 Route::post('/createUser',[UserController::class,'createUser']);
 
+Route::get('/sendmail',[UserController::class,'sendMail']);
 

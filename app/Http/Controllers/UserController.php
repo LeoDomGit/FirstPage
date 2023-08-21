@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\UserRoleM;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\demoMail;
 class UserController extends Controller
 {
     /**
@@ -105,9 +107,13 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function sendMail()
     {
-        //
+        //Email nhận 
+        $mailData = [
+            'name'=>'Trung Thành'
+        ];
+        Mail::to('leodomsolar@gmail.com')->send(new demoMail($mailData));
     }
 
     /**
