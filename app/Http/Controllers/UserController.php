@@ -12,6 +12,36 @@ use App\Mail\demoMail;
 use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
+    public function DangNhap()
+    {
+        return view('login.dangnhap');
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function checkRegister(Request $request,Validator $validation,User $User,UserRoleM $UserRoleM)
+    {
+        $validation = Validator::make($request->all(), [
+            'email'=>'required|unique:users,email',
+            'password'=>'required'
+        ],[
+            'email.required'=>'Thiếu email tài khoản',
+            'email.unique'=>'Email tài khoản bị trùng',
+        ]); 
+        if ($validation->fails()) {
+            return response()->json(['check' => false,'msg'=>$validation->errors()]);
+        }
+        
+    }
+    /**
+     * Display a listing of the resource.
+     */
+
+    public function DangKy()
+    {
+        return view('login.dangky');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -117,7 +147,7 @@ class UserController extends Controller
      */
     public function Login()
     {
-        return view('users.login');
+        return view('login.dangnhap');
     }
 
     /**
@@ -126,21 +156,23 @@ class UserController extends Controller
     public function checkLogin(Request $request,Validator $validation,User $User)
     {
         $validation = Validator::make($request->all(), [
-            'username'=>'required',
+            'email'=>'required|email|exists:users,email',
             'password'=>'required',
 
         ],[
-            'username.required'=>'Thiếu tên đăng nhập',
+            'email.required'=>'Thiếu email đăng nhập',
+            'email.email'=>'Email đăng nhập không hợp lệ',
+            'email.exists'=>"Email không tồn tại",
             'password.required'=>'Thiếu mật khẩu',
            
         ]); 
         if ($validation->fails()) {
             return response()->json(['check' => false,'msg'=>$validation->errors()]);
         }
-        if (Auth::attempt(['name'=>$request->username,'password'=>$request->password], true)) {
+        if (Auth::attempt(['email'=>$request->email,'password'=>$request->password], true)) {
             return response()->json(['check'=>true]);
         }else{
-            return response()->json(['check'=>false]);
+            return response()->json(['check'=>false,'msg'=>'Sai mật khẩu']);
 
         }
     }
