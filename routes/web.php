@@ -14,16 +14,17 @@ use App\Http\Controllers\PostController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::get('/',[UserController::class,'index']);
-Route::post('/addLoaiTaiKhoan',[UserController::class,'TaoLoaiTaiKhoan']);
-Route::post('/editLoaiTaiKhoan',[UserController::class,'editLoaiTaiKhoan']);
-Route::post('/deleteLoaiTaiKhoan',[UserController::class,'deleteLoaiTaiKhoan']);
-// ====================================
-Route::post('/createUser',[UserController::class,'createUser']);
+Route::middleware('checkLogin')->group(function () {
+    // ...
+    Route::post('/createUser',[UserController::class,'createUser']);
+    Route::get('/',[UserController::class,'index']);
+    Route::post('/addLoaiTaiKhoan',[UserController::class,'TaoLoaiTaiKhoan']);
+    Route::post('/editLoaiTaiKhoan',[UserController::class,'editLoaiTaiKhoan']);
+    Route::post('/deleteLoaiTaiKhoan',[UserController::class,'deleteLoaiTaiKhoan']);
 
-// Route::get('/sendmail',[UserController::class,'sendMail']);
+
+});
 Route::get('/login',[UserController::class,'Login']);
 Route::post('/checkLogin',[UserController::class,'checkLogin']);
-Route::get('/register', [UserController::class,'DangKy']);
 
 
