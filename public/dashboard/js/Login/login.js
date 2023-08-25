@@ -60,10 +60,10 @@ function login(){
                             title: res.msg.password
                         })
                     }else if(res.msg){
-                            Toast.fire({
-                                icon: 'error',
-                                title: res.msg
-                            })
+                        Toast.fire({
+                            icon: 'error',
+                            title: res.msg
+                        })
                     }
                 }
             });
