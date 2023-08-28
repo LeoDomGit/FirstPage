@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\demoMail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 class UserController extends Controller
 {
     public function DangNhap()
@@ -48,7 +49,8 @@ class UserController extends Controller
     public function index()
     {
         $userroles = UserRoleM::all();
-        return view('users.index',compact("userroles"));
+        $users = User::all();
+        return view('users.index',compact("userroles","users"));
     }
 
     /**
@@ -180,9 +182,25 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function doiEmail(Request $request,Validator $validation,User $User)
     {
-        //
+        $validation = Validator::make($request->all(), [
+            'email'=>'required|email|unique:users,email',
+            'id'=>'required|numeric|exists:users,id',
+
+        ],[
+            'email.required'=>'Thiếu email đăng nhập',
+            'email.email'=>'Email đăng nhập không hợp lệ',
+            'email.unique'=>"Email đã tồn tại",
+            'id.required'=>'Thiếu mã tài khoản',
+            'id.numeric'=>'Mã tài khoản không hợp lệ',
+            'id.exists'=>'Mã tài khoản không tồn tại',
+        ]); 
+        if ($validation->fails()) {
+            return response()->json(['check' => false,'msg'=>$validation->errors()]);
+        }
+        User::where('id',$request->id)->update(['email'=>$request->email,'updated_at'=>now()]);
+        return response()->json(['check'=>true]);
     }
 
     /**
@@ -196,8 +214,11 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function logout()
     {
-        //
+        if(Auth::check()){
+            Auth::logout();
+            return redirect('/login');
+        }
     }
 }

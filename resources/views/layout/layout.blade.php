@@ -283,13 +283,79 @@ use Illuminate\Support\Facades\Session;
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-            // changeAccountInfo();
-            // copyCode();
+            changePassword()
         });
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+
+        function changePassword() {
+            $("#accountBtn").click(function(e) {
+                e.preventDefault();
+                $("#passwordaccount").hide();
+                $("#repasswordaccount").hide();
+                $("#userModal").modal('show');
+                $('#updateUserBtn').click(function(e) {
+                    e.preventDefault();
+                    var email = $("#emailaccount").val().trim();
+                    Swal.fire({
+                        icon: 'question',
+                        text: 'Cập nhật email tài khoản ?',
+                        showDenyButton: true,
+                        showCancelButton: false,
+                        confirmButtonText: 'Đúng',
+                        denyButtonText: `Không`,
+                    }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                            var id = $("#emailaccount").attr('data-id');
+                            $.ajax({
+                                type: "post",
+                                url: "/doiEmail",
+                                data: {
+                                    email: email,
+                                    id: id
+                                },
+                                dataType: "JSON",
+                                success: function(res) {
+                                    if (res.check == true) {
+                                        Toast.fire({
+                                            icon: 'success',
+                                            title: 'Đã được cập nhật'
+                                        }).then(() => {
+                                            window.location.reload();
+                                        })
+                                    } else if (res.check == false) {
+                                        if (res.msg.id) {
+                                            Toast.fire({
+                                                icon: 'error',
+                                                title: res.msg.id
+                                            })
+                                        }else if(res.msg.email){
+                                            Toast.fire({
+                                                icon: 'error',
+                                                title: res.msg.email
+                                            })
+                                        }
+                                    }
+
+                                }
+                            });
+                        } else if (result.isDenied) {}
+                    })
+                });
+            });
+        }
     </script>
-    {{-- <script src="/dashboard/libs/apexcharts/dist/apexcharts.min.js"></script> --}}
-    {{-- <script src="/dashboard/libs/simplebar/dist/simplebar.js"></script> --}}
-    {{-- <script src="/dashboard/js/dashboard.js"></script> --}}
+
 </body>
 
 </html>

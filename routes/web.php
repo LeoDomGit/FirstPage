@@ -21,6 +21,9 @@ Route::middleware('checkLogin')->group(function () {
     Route::post('/addLoaiTaiKhoan',[UserController::class,'TaoLoaiTaiKhoan']);
     Route::post('/editLoaiTaiKhoan',[UserController::class,'editLoaiTaiKhoan']);
     Route::post('/deleteLoaiTaiKhoan',[UserController::class,'deleteLoaiTaiKhoan']);
+    Route::post('/doiEmail',[UserController::class,'doiEmail']);
+
+    Route::get('/logout',[UserController::class,'logout']);
 
 
 });

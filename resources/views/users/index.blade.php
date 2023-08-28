@@ -93,6 +93,33 @@
                 @endforeach
             </ul>
         </div>
+        <div class="col-md">
+            <div class="table-responsive">
+                <table class="table table-primary">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tên tài khoản</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col">Ngày tạo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="">
+                            <td scope="row">R1C1</td>
+                            <td>R1C2</td>
+                            <td>R1C3</td>
+                        </tr>
+                        <tr class="">
+                            <td scope="row">Item</td>
+                            <td>Item</td>
+                            <td>Item</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
     </div>
     <script>
 
