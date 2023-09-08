@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\demoMail;
+use App\Mail\ChangeMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 class UserController extends Controller
@@ -18,6 +19,27 @@ class UserController extends Controller
         return view('login.dangnhap');
     }
 
+    /**
+     * Display a listing of the resource.
+     */
+    public function switchUser(Request $request,Validator $validation,User $User){
+        $validation = Validator::make($request->all(), [
+            'id'=>'required|exists:users,id',
+        ],[
+            'id.required'=>'Thiếu mã tài khoản',
+            'id.exists'=>'Mã tài khoản không tồn tại',
+        ]); 
+        if ($validation->fails()) {
+            return response()->json(['check' => false,'msg'=>$validation->errors()]);
+        }
+        $old =User::where('id',$request->id)->value('status');
+        if($old ==0){
+            User::where('id',$request->id)->update(['status'=>1,'updated_at'=>now()]);
+        }else{
+            User::where('id',$request->id)->update(['status'=>0,'updated_at'=>now()]);
+        }
+        return response()->json(['check'=>true]);
+    }
     /**
      * Display a listing of the resource.
      */
@@ -200,6 +222,11 @@ class UserController extends Controller
             return response()->json(['check' => false,'msg'=>$validation->errors()]);
         }
         User::where('id',$request->id)->update(['email'=>$request->email,'updated_at'=>now()]);
+        $mailData = [
+            'title'=>'CẬP NHẬT EMAIL TÀI KHOẢN',
+            'email'=>$request->email,
+        ];
+        Mail::to($request->email)->send(new ChangeMail($mailData));
         return response()->json(['check'=>true]);
     }
 

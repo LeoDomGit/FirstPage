@@ -62,6 +62,26 @@
             </div>
         </div>
     </div>
+    {{-- Modal --}}
+    <div class="modal fade" id="ModalThayDoiEmail" tabindex="-1" aria-labelledby="ModalThayDoiEmailLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalThayDoiEmailLabel">Thay đổi email</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="emailconvert" placeholder="Email mới" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="updateEmailBtn">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- ===================== --}}
     <div class="row">
         <div class="col-md-3">
             <ul class="list-group">
@@ -98,54 +118,166 @@
                 <table class="table table-primary">
                     <thead>
                         <tr>
+                            <th scope="col">#</th>
                             <th scope="col">Tên tài khoản</th>
                             <th scope="col">Email</th>
                             <th scope="col">Trạng thái</th>
                             <th scope="col">Ngày tạo</th>
+                            <th scope="col">Tùy chỉnh</th>
+
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="">
-                            <td scope="row">R1C1</td>
-                            <td>R1C2</td>
-                            <td>R1C3</td>
-                        </tr>
-                        <tr class="">
-                            <td scope="row">Item</td>
-                            <td>Item</td>
-                            <td>Item</td>
-                        </tr>
+                        @foreach ($users as $key => $item)
+                            <tr class="">
+                                <td scope="row">{{ ++$key }}</td>
+                                <td><b class="pointer">{{ $item->name }}</b></td>
+                                <td><b class="pointer emailchange" data-id='{{ $item->id }}'
+                                        data-value="{{ $item->email }}">{{ $item->email }}</b></td>
+                                <td><?php
+                                if($item->status==1){?>
+                                    <b class="pointer switchbtn" data-id='{{ $item->id }}'>Đang mở</b>
+                                    <?php  }else{ ?>
+                                    <b class="pointer switchbtn" data-id='{{ $item->id }}'>Đang đóng</b>
+                                    <?php }
+                            ?>
+                                </td>
+                                <td>
+                                    {{ date('d/m/20y', strtotime($item->created_at)) }}
+                                </td>
+                                <td>
+                                    <button class="btn btn-danger">Xóa</button>
+                                </td>
+                            </tr>
+                        @endforeach
+
                     </tbody>
                 </table>
             </div>
-            
+
         </div>
     </div>
     <script>
-
         $(document).ready(function() {
             const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter',
-                    Swal
-                    .stopTimer)
-                toast.addEventListener('mouseleave',
-                    Swal
-                    .resumeTimer)
-            }
-        })
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter',
+                        Swal
+                        .stopTimer)
+                    toast.addEventListener('mouseleave',
+                        Swal
+                        .resumeTimer)
+                }
+            })
             ThemLoaiTaiKhoan();
             editLoaiTaiKhoan();
             deleteUserRole();
             themTaiKhoan();
-
+            SwitchUser();
+            ThayDoiEMail();
         });
+        // ===================================
+        function ThayDoiEMail() {
+            $(".emailchange").click(function(e) {
+                e.preventDefault();
+                var old = $(this).attr('data-value');
+                var id = $(this).attr('data-id');
+                $("#emailconvert").val(old);
+                $("#ModalThayDoiEmail").modal('show');
+                $("#updateEmailBtn").click(function(e) {
+                    e.preventDefault();
+                    var email = $("#emailconvert").val();
+                    if (email == old) {
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Chưa cập nhật email'
+                        })
+                    } else {
+                        $.ajax({
+                            type: "post",
+                            url: "/doiEmail",
+                            data: {
+                                id: id,
+                                email: email
+                            },
+                            dataType: "JSON",
+                            success: function(res) {
+                                if (res.check == true) {
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: 'Cập nhật thành công'
+                                    })
+                                } else if (res.check == false) {
+                                    if (res.msg.id) {
+                                        Toast.fire({
+                                            icon: 'error',
+                                            title: res.msg.id
+                                        })
+                                    } else if (res.msg.email) {
+                                        Toast.fire({
+                                            icon: 'error',
+                                            title: res.msg.email
+                                        })
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+        }
+        // ===================================
+        function SwitchUser() {
+            $(".switchbtn").click(function(e) {
+                e.preventDefault();
+                var id = $(this).attr('data-id');
+                Swal.fire({
+                    icon: 'question',
+                    text: 'Thay đổi trạng thái tài khoản ?',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Đúng',
+                    denyButtonText: `Không`,
 
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "post",
+                            url: "/switchUser",
+                            data: {
+                                id: id
+                            },
+                            dataType: "JSON",
+                            success: function(res) {
+                                if (res.check == true) {
+                                    Toast.fire({
+                                            icon: 'success',
+                                            title: 'Đã thay đổi thành công'
+                                        })
+                                        .then(() => {
+                                            window.location.reload();
+                                        })
+                                } else if (res.check == false) {
+                                    if (res.msg.id) {
+                                        Toast.fire({
+                                            icon: 'error',
+                                            title: res.msg.id
+                                        })
+                                    }
+                                }
+                            }
+                        });
+                    } else if (result.isDenied) {}
+                })
+            });
+        }
+        // ====================================
         function themTaiKhoan() {
             $("#themTaiKhoanBtn").click(function(e) {
                 e.preventDefault();
@@ -156,7 +288,7 @@
                     var email = $("#email").val().trim();
                     var idRole = $("#idRole option:selected").val();
                     if (username == '') {
-                        
+
                         Toast.fire({
                             icon: 'error',
                             title: 'Thiếu username'
@@ -168,27 +300,27 @@
                         })
                     } else {
                         const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter',
-                    Swal
-                    .stopTimer)
-                toast.addEventListener('mouseleave',
-                    Swal
-                    .resumeTimer)
-            }
-        })
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter',
+                                    Swal
+                                    .stopTimer)
+                                toast.addEventListener('mouseleave',
+                                    Swal
+                                    .resumeTimer)
+                            }
+                        })
                         $.ajax({
                             type: "post",
                             url: "/createUser",
                             data: {
                                 username: username,
                                 email: email,
-                                idRole:idRole
+                                idRole: idRole
                             },
                             dataType: "JSON",
                             success: function(res) {
@@ -206,12 +338,12 @@
                                             icon: 'error',
                                             title: res.msg.username
                                         })
-                                    }else if(res.msg.idRole){
+                                    } else if (res.msg.idRole) {
                                         Toast.fire({
                                             icon: 'error',
                                             title: res.msg.idRole
                                         })
-                                    }else if(res.msg.email){
+                                    } else if (res.msg.email) {
                                         Toast.fire({
                                             icon: 'error',
                                             title: res.msg.email
