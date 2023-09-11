@@ -136,7 +136,8 @@
                                         data-value="{{ $item->email }}">{{ $item->email }}</b></td>
                                 <td><?php
                                 if($item->status==1){?>
-                                    <b class="pointer switchbtn" data-id='{{ $item->id }}'>Đang mở</b>
+                                    <b class="pointer switchbtn" style="cursor: pointer;"
+                                        data-id='{{ $item->id }}'>Đang mở</b>
                                     <?php  }else{ ?>
                                     <b class="pointer switchbtn" data-id='{{ $item->id }}'>Đang đóng</b>
                                     <?php }
@@ -146,7 +147,8 @@
                                     {{ date('d/m/20y', strtotime($item->created_at)) }}
                                 </td>
                                 <td>
-                                    <button class="btn btn-danger">Xóa</button>
+                                    <button class="btn btn-danger deleteUserbtn"
+                                        data-id='{{ $item->id }}'>Xóa</button>
                                 </td>
                             </tr>
                         @endforeach
@@ -180,7 +182,50 @@
             themTaiKhoan();
             SwitchUser();
             ThayDoiEMail();
+            deleteUser();
         });
+
+        function deleteUser() {
+            $(".deleteUserbtn").click(function(e) {
+                e.preventDefault();
+                var id = $(this).attr('data-id');
+                Swal.fire({
+                    text: 'Xóa tài khoản ?',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Đúng ',
+                    denyButtonText: `Không`,
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "post",
+                            url: "/deleteUser",
+                            data: {id:id},
+                            dataType: "JSON",
+                            success: function (res) {
+                                if(res.check==true){
+                                    Toast.fire({
+                            icon: 'success',
+                            title: 'Xóa thành công'
+                        }).then(()=>{
+                            window.location.reload()
+                        })
+                                }else if(res.check==false){
+                                    if(res.msg.id){
+                                        Toast.fire({
+                            icon: 'error',
+                            title: res.msg.id
+                        })
+                                    }
+                                }
+                            }
+                        });
+                    } else if (result.isDenied) {
+                    }
+                })
+            });
+        }
         // ===================================
         function ThayDoiEMail() {
             $(".emailchange").click(function(e) {

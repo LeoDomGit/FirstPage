@@ -12,6 +12,7 @@
 			<h3>{{ $mailData['title'] }}</h3>
             <h4> Bạn đã thay đổi email thành công</h4>
             <h4>Mail đăng nhập của bạn là : {{$mailData['email']}}</h4>
+            <h4>Tên đăng nhập của bạn là : {{$mailData['username']}}</h4>
 		</div>
 		<p>Thân gửi,</p>
 	</div>	

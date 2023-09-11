@@ -23,10 +23,13 @@ Route::middleware('checkLogin')->group(function () {
     Route::post('/deleteLoaiTaiKhoan',[UserController::class,'deleteLoaiTaiKhoan']);
     Route::post('/doiEmail',[UserController::class,'doiEmail']);
     Route::post('/switchUser',[UserController::class,'switchUser']);
+    Route::post('/deleteUser',[UserController::class,'deleteUser']);
     Route::get('/logout',[UserController::class,'logout']);
+    
 
 
 });
+
 Route::get('/login',[UserController::class,'Login']);
 Route::post('/checkLogin',[UserController::class,'checkLogin']);
 

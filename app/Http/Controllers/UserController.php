@@ -18,7 +18,23 @@ class UserController extends Controller
     {
         return view('login.dangnhap');
     }
-
+/**
+     * Display a listing of the resource.
+     */
+    public function deleteUser(Request $request,Validator $validation,User $User)
+    {
+        $validation = Validator::make($request->all(), [
+            'id'=>'required|exists:users,id',
+        ],[
+            'id.required'=>'Thiếu mã tài khoản',
+            'id.exists'=>'Mã tài khoản không tồn tại',
+        ]); 
+        if ($validation->fails()) {
+            return response()->json(['check' => false,'msg'=>$validation->errors()]);
+        }
+        User::where('id',$request->id)->delete();
+        return response()->json(['check'=>true]);
+    }
     /**
      * Display a listing of the resource.
      */
@@ -222,9 +238,11 @@ class UserController extends Controller
             return response()->json(['check' => false,'msg'=>$validation->errors()]);
         }
         User::where('id',$request->id)->update(['email'=>$request->email,'updated_at'=>now()]);
+        $username= User::where('id',$request->id)->value('name');
         $mailData = [
             'title'=>'CẬP NHẬT EMAIL TÀI KHOẢN',
             'email'=>$request->email,
+            'username'=>$username,
         ];
         Mail::to($request->email)->send(new ChangeMail($mailData));
         return response()->json(['check'=>true]);
