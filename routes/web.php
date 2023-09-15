@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostController;
-
+use App\Http\Controllers\CategroriesController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -25,8 +25,14 @@ Route::middleware('checkLogin')->group(function () {
     Route::post('/switchUser',[UserController::class,'switchUser']);
     Route::post('/deleteUser',[UserController::class,'deleteUser']);
     Route::get('/logout',[UserController::class,'logout']);
-    
+    Route::controller(CategroriesController::class)->group(function () {
+        Route::get('/loai-sp', 'index');
+        Route::post('/loai-sp', 'store');
+        Route::post('/sua-loai-sp', 'update');
+        Route::post('/xoa-loai-sp', 'destroy');
 
+    });
+    // Route::get('/loaiSP',[CategroriesController::class,'index']);
 
 });
 
