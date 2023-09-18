@@ -51,13 +51,13 @@
                                     <td><span class="pointer editCateName" data-value="{{ $item->name }}"
                                             data-id="{{ $item->id }}">{{ $item->name }}</span></td>
                                     <td>
-                                        @if ($item->status == 0 && $item->deleted_at ==null)
+                                        @if ($item->status == 0 && $item->deleted_at == null)
                                             <b class="pointer switchCate" data-id="{{ $item->id }}">Đang khóa</b>
                                         @else
-                                            @if ($item->status==0 && $item->deleted_at!=null)
-                                            <b class="pointer switchCate" data-id="{{ $item->id }}">Đang xóa</b>
+                                            @if ($item->deleted_at != null)
+                                                <b class="pointer restoreCate" data-id="{{ $item->id }}">Đã xóa</b>
                                             @else
-                                            <b class="pointer switchCate" data-id="{{ $item->id }}">Đang mở</b>
+                                                <b class="pointer switchCate" data-id="{{ $item->id }}">Đang mở</b>
                                             @endif
                                         @endif
                                     </td>
@@ -96,7 +96,52 @@
             addLoaiSP();
             editLoaiSP();
             xoaLoaiSP();
+            restoreLoaiSP();
         });
+
+        function restoreLoaiSP() {
+            $(".restoreCate").click(function(e) {
+                e.preventDefault();
+                var id = $(this).attr('data-id');
+                Swal.fire({
+                    icon:'question',
+                    text: 'Khôi phục loại sản phẩm ?',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Đúng',
+                    denyButtonText: `Không`,
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "post",
+                            url: "/khoi-phuc-loaisp",
+                            data: {
+                                id:id
+                            },
+                            dataType: "JSON",
+                            success: function (res) {
+                                if(res.check==true){
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: 'Đã khôi phục'
+                                    }).then(()=>{
+                                        window.location.reload();
+                                    })
+                                }
+                                if(res.msg.id){
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: res.msg.id
+                                    })
+                                }
+                            }
+                        });
+                    } else if (result.isDenied) {
+                    }
+                })
+            });
+        }
 
         function xoaLoaiSP() {
             $(".xoaLSPBtn").click(function(e) {

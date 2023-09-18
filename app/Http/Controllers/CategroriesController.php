@@ -12,7 +12,7 @@ class CategroriesController extends Controller
      */
     public function index()
     {
-        $cates= cateM::all();
+        $cates= cateM::withTrashed()->get();
         return view('cates.index',compact('cates'));
     }
 
@@ -81,6 +81,20 @@ class CategroriesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+    public function restore(Request $request, cateM $cateM)
+    {
+        $validation = Validator::make($request->all(), [
+            'id'=>'required|exists:categrories_tbl,id',
+        ],[
+            'id.required'=>'Thiếu mã loại sản phẩm',
+            'id.exists'=>'Mã loại sản phẩm không tồn tại',
+        ]); 
+        cateM::onlyTrashed()->where('id', $request->id)->restore();
+        return response()->json(['check'=>true]);
+    }
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy(Request $request, cateM $cateM)
     {
         $validation = Validator::make($request->all(), [
@@ -89,7 +103,7 @@ class CategroriesController extends Controller
             'id.required'=>'Thiếu mã loại sản phẩm',
             'id.exists'=>'Mã loại sản phẩm không tồn tại',
         ]); 
-        cateM::where('id',$request->id)->update(['status'=>0,'deleted_at'=>now()]);
+        cateM::where('id',$request->id)->delete();
         return response()->json(['check'=>true]);
     }
 }

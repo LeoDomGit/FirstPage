@@ -67,7 +67,7 @@ use Illuminate\Support\Facades\Session;
                             <span class="hide-menu">Sản Phẩm</span>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="/products/categrory" aria-expanded="false">
+                            <a class="sidebar-link" href="/loai-sp" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-alert-circle"></i>
                                 </span>
