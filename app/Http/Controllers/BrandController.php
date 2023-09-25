@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\brandM;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 class BrandController extends Controller
 {
     /**
@@ -12,7 +13,8 @@ class BrandController extends Controller
      */
     public function index()
     {
-       return view('brands.index');
+        $brands = DB::table('brands_tbl')->get();
+        return view('brands.index', compact('brands'));
     }
 
     /**

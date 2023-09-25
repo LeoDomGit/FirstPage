@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategroriesController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\ProductController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -37,9 +38,10 @@ Route::middleware('checkLogin')->group(function () {
         Route::post('/khoi-phuc-loaisp', 'restore');
     });
     Route::prefix('products')->name('products.')->group(function () {
+        Route::get('/', [ProductController::class,'index']);
         Route::get('brands', [BrandController::class,'index']);
         Route::post('brands', [BrandController::class,'store']);
-        Route::post('editBrands', [BrandController::class,'update']);
+        Route::post('editBrands', [BrandController::class,'update'])->name('editBrands');
         Route::post('delete', [BrandController::class,'destroy']);
         Route::post('restoreBrand', [BrandController::class,'restore']);
     });
@@ -49,3 +51,6 @@ Route::middleware('checkLogin')->group(function () {
 Route::get('/login',[UserController::class,'Login']);
 Route::post('/checkLogin',[UserController::class,'checkLogin']);
 
+Route::group(['prefix' => 'laravel-filemanager', 'middleware'], function () {
+    \UniSharp\LaravelFilemanager\Lfm::routes();
+});

@@ -29,6 +29,68 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-7">
+            <table class="table">
+                <thead class="table-primary">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Tên Thương hiệu</th>
+                        <th scope="col">Tình trạng</th>
+                        <th scope="col">Ngày tạo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (count($brands) > 0)
+                        @foreach ($brands as $key => $item)
+                            @if ($key % 2 == 0)
+                                <tr class="table-warning">
+                                    <th scope="row">{{ ++$key }}</th>
+                                    <td><span class="editBrand editsite"
+                                            data-id="{{ $item->id }}"data-value="{{ $item->name }}">{{ $item->name }}</span>
+                                    </td>
+                                    <td>
+                                        @if ($item->status == 0)
+                                            <b class="editsite switchBrand"data-id="{{ $item->id }}">Đang tắt</b>
+                                        @else
+                                            <b class="editsite switchBrand" data-id="{{ $item->id }}">Đang mở</b>
+                                        @endif
+                                    </td>
+
+                                    <td>
+                                        {{ date('d/m/20y', strtotime($item->created_at)) }}
+                                    </td>
+                                </tr>
+                            @else
+                                <tr class="table-secondary">
+                                    <th scope="row">{{ ++$key }}</th>
+                                    <td><span class="editBrand editsite" data-id="{{ $item->id }}"
+                                            data-value="{{ $item->name }}">{{ $item->name }}</span></td>
+                                    <td>
+                                        @if ($item->status == 0)
+                                            <b class="editsite switchBrand"data-id="{{ $item->id }}">Đang tắt</b>
+                                        @else
+                                            <b class="editsite switchBrand" data-id="{{ $item->id }}">Đang mở</b>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        {{ date('d/m/20y', strtotime($item->created_at)) }}
+                                    </td>
+                                </tr>
+                            @endif
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="4">
+                                <b>Chưa có thương hiệu sản phẩm</b>
+                            </td>
+                        </tr>
+                    @endif
+
+                </tbody>
+            </table>
+        </div>
+    </div>
     <script>
         $(document).ready(function() {
             const Toast = Swal.mixin({
@@ -47,8 +109,132 @@
                 }
             })
             addBrand();
+            editBrand();
         });
+        function editBrand() {
+            $(".editBrand").click(function(e) {
+                e.preventDefault();
+                var id = $(this).attr('data-id');
+                var old = $(this).attr('data-value');
+                $("#brandname").val(old);
+                $("#BrandModal").modal('show');
+                $("#submitBrandBtn").click(function(e) {
+                    e.preventDefault();
+                    
+                    var brandName = $("#brandname").val().trim();
+                    if (brandName == '') {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer)
+                                toast.addEventListener('mouseleave', Swal.resumeTimer)
+                            }
+                        })
 
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Thiếu tên loại'
+                        })
+                    } else if (brandName == old) {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer)
+                                toast.addEventListener('mouseleave', Swal.resumeTimer)
+                            }
+                        })
+
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Tên loại chưa được thay đổi'
+                        })
+                    } else {
+                        $.ajax({
+                            type: "post",
+                            url: "{{ route('products.editBrands') }}",
+                            data: {
+                                id: id,
+                                name: brandName
+                            },
+                            dataType: "JSON",
+                            success: function(response) {
+                                if (response.check == true) {
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 1500,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.addEventListener('mouseenter',
+                                                Swal.stopTimer)
+                                            toast.addEventListener('mouseleave',
+                                                Swal.resumeTimer)
+                                        }
+                                    })
+
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: 'Đã chuyển thành công'
+                                    }).then(() => {
+                                        window.location.reload();
+                                    })
+                                }
+                                if (response.message.name) {
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 1500,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.addEventListener('mouseenter',
+                                                Swal.stopTimer)
+                                            toast.addEventListener('mouseleave',
+                                                Swal.resumeTimer)
+                                        }
+                                    })
+
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: response.message.catename
+                                    })
+                                }
+                                if (response.message) {
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 1500,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.addEventListener('mouseenter',
+                                                Swal.stopTimer)
+                                            toast.addEventListener('mouseleave',
+                                                Swal.resumeTimer)
+                                        }
+                                    })
+
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: response.message
+                                    })
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+            
+        }
         function addBrand() {
             $('#addBrandBtn').click(function(e) {
                 e.preventDefault();
