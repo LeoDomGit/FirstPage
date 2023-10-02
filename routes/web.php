@@ -44,6 +44,8 @@ Route::middleware('checkLogin')->group(function () {
         Route::post('editBrands', [BrandController::class,'update'])->name('editBrands');
         Route::post('delete', [BrandController::class,'destroy']);
         Route::post('restoreBrand', [BrandController::class,'restore']);
+        Route::post('/', [ProductController::class,'store']);
+
     });
 
 });

@@ -6,6 +6,7 @@ use App\Models\productM;
 use Illuminate\Http\Request;
 use App\Models\brandM;
 use App\Models\cateM;
+use Illuminate\Support\Facades\Validator;
 class ProductController extends Controller
 {
     /**
@@ -29,9 +30,26 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request,productM $productM)
     {
-        //
+        $validation = Validator::make($request->all(), [
+
+            'name'=>'required|unique:products,name',
+            'price'=>'required|numeric',
+            'quantity'=>'required|numeric|min:0',
+            'discount'=>'required|numeric|min:0',
+            'idBrand'=>'required|exists:brands_tbl,id',
+            'idCate'=>'required|exists:categrories_tbl,id',
+            'content'=>'required',
+        ],[
+            'name.required'=>'Thiếu tên sản phẩm',
+            'name.unique'=>'Tên thương hiệu bị trùng',
+        ]); 
+        if ($validation->fails()) {
+            return response()->json(['check' => false,'msg'=>$validation->errors()]);
+        }
+        move_uploaded_file($_FILES['file']['tmp_name'],'images/'.$_FILES['file']['name']);
+        productM::create(['name'=>$request->name,'price'=>$request->price,'discount'=>$request->discount,'idBrand'=>$request->idBrand,'idCate'=>$request->idCate,'images'=>$_FILES['file']['name'],'content'=>$request->content]);
     }
 
     /**

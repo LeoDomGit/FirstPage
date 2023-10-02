@@ -1,14 +1,15 @@
 <style>
-    .editsite{
+    .editsite {
 
         cursor: pointer;
     }
-    td{
+
+    td {
         font-size: 11px;
         vertical-align: middle
-
     }
-    th{
+
+    th {
         font-size: 12px;
         text-align: center
     }
@@ -87,9 +88,9 @@
         </div>
     </div>
     <div class="row">
-    
+
     </div>
-    
+
     <script src="/dashboard/js/ckeditor/ckeditor.js"></script>
     <script>
         var options = {
@@ -101,19 +102,76 @@
         var ckeditor = CKEDITOR.replace('content', options);
         ckeditor.config.height = 300;
         $(document).ready(function() {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1700,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
             addProduct();
-            switchProd();
+            // switchProd();
         });
+
+
+
 
         function addProduct() {
             $("#addProductBtn").click(function(e) {
                 var file = [];
                 e.preventDefault();
                 $("#productModal").modal('show');
-                
+                $("#submitProductBtn").click(function(e) {
+                    e.preventDefault();
+                    var name = $("#name").val().trim();
+                    var price = $("#price").val().trim();
+                    var quantity = $("#quantity").val().trim();
+                    var discount = $("#discount").val().trim();
+                    var idBrand = $("#idBrand option:selected").val();
+                    var idCate = $("#idCate option:selected").val();
+                    var file = $("#file")[0].files;
+                    var content = CKEDITOR.instances.content.getData();
+                    var formData = new FormData();
+                    formData.append('name', name);
+                    formData.append('price', price);
+                    formData.append('quantity', quantity);
+                    formData.append('discount', discount);
+                    formData.append('idBrand', idBrand);
+                    formData.append('idCate', idCate);
+                    formData.append('file', file[0]);
+                    formData.append('content', content);
+                    $.ajax({
+                        type: "post",
+                        url: "/products",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        dataType: "JSON",
+                        success: function(res) {
+                            if (res.check == true) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Thêm sản phẩm thành công'
+                                }).then(() => {
+                                    window.location.reload();
+                                })
+                            }
+                            if (res.msg - name) {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: res.msg - name
+                                })
+                            }
+                        }
+                    });
+
+                });
             });
         }
-
-        
     </script>
 @endsection
