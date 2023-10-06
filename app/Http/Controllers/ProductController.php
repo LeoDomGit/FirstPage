@@ -41,15 +41,39 @@ class ProductController extends Controller
             'idBrand'=>'required|exists:brands_tbl,id',
             'idCate'=>'required|exists:categrories_tbl,id',
             'content'=>'required',
+            'file'=>'required'
         ],[
             'name.required'=>'Thiếu tên sản phẩm',
             'name.unique'=>'Tên thương hiệu bị trùng',
+            'price.required'=>'Thiếu giá sản phẩm',
+            'price.numeric'=>'Giá sản phẩm không hợp lệ',
+            'quantity.required'=>'Thiếu số lượng sản phẩm',
+            'quantity.numeric'=>'Số lượng sản phẩm không hợp lệ',
+            'quantity.min'=>'Số lượng sản phẩm >0',
+            'discount.numeric'=>'Giá sản phẩm không hợp lệ',
         ]); 
         if ($validation->fails()) {
             return response()->json(['check' => false,'msg'=>$validation->errors()]);
         }
-        move_uploaded_file($_FILES['file']['tmp_name'],'images/'.$_FILES['file']['name']);
-        productM::create(['name'=>$request->name,'price'=>$request->price,'discount'=>$request->discount,'idBrand'=>$request->idBrand,'idCate'=>$request->idCate,'images'=>$_FILES['file']['name'],'content'=>$request->content]);
+        if(!isset($_FILES['file'])){
+            return response()->json(['check'=>false,'msg'=>'Thiếu hình ảnh']);
+            // $validation->errors()->add('image', 'Thiếu hình ảnh sản phẩm');
+        }
+        if(file_exists(public_path('images/'.$_FILES['file']['name']))){
+           if(isset($_POST['replace'])&& $_POST['replace']==1){
+                move_uploaded_file($_FILES['file']['tmp_name'],'images/'.$_FILES['file']['name']);
+                productM::create(['name'=>$request->name,'price'=>$request->price,'discount'=>$request->discount,'idBrand'=>$request->idBrand,'idCate'=>$request->idCate,'images'=>$_FILES['file']['name'],'content'=>$request->content]);
+                return response()->json(['check'=>true]);
+           }else{
+            return response()->json(['check'=>false,'image'=>true]);
+
+           }
+        }else{
+            move_uploaded_file($_FILES['file']['tmp_name'],'images/'.$_FILES['file']['name']);
+            productM::create(['name'=>$request->name,'price'=>$request->price,'discount'=>$request->discount,'idBrand'=>$request->idBrand,'idCate'=>$request->idCate,'images'=>$_FILES['file']['name'],'content'=>$request->content]);
+            return response()->json(['check'=>true]);
+        }
+
     }
 
     /**

@@ -134,41 +134,182 @@
                     var idBrand = $("#idBrand option:selected").val();
                     var idCate = $("#idCate option:selected").val();
                     var file = $("#file")[0].files;
+
                     var content = CKEDITOR.instances.content.getData();
-                    var formData = new FormData();
-                    formData.append('name', name);
-                    formData.append('price', price);
-                    formData.append('quantity', quantity);
-                    formData.append('discount', discount);
-                    formData.append('idBrand', idBrand);
-                    formData.append('idCate', idCate);
-                    formData.append('file', file[0]);
-                    formData.append('content', content);
-                    $.ajax({
-                        type: "post",
-                        url: "/products",
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        cache: false,
-                        dataType: "JSON",
-                        success: function(res) {
-                            if (res.check == true) {
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: 'Thêm sản phẩm thành công'
-                                }).then(() => {
-                                    window.location.reload();
-                                })
+                    if (file == undefined) {
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Thiếu hình ảnh sản phẩm'
+                        })
+                    } else {
+                        var formData = new FormData();
+
+                        formData.append('name', name);
+                        formData.append('price', price);
+                        formData.append('quantity', quantity);
+                        formData.append('discount', discount);
+                        formData.append('idBrand', idBrand);
+                        formData.append('idCate', idCate);
+                        formData.append('file', file[0]);
+                        formData.append('content', content);
+                        $.ajax({
+                            type: "post",
+                            url: "/products",
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            cache: false,
+                            dataType: "JSON",
+                            success: function(res) {
+                                if (res.check == true) {
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: 'Thêm sản phẩm thành công'
+                                    }).then(() => {
+                                        window.location.reload();
+                                    })
+                                }
+                                if (res.image) {
+                                    Swal.fire({
+                                        text: 'Muốn thay thế hình ảnh trùng tên ?',
+                                        showDenyButton: true,
+                                        showCancelButton: false,
+                                        confirmButtonText: 'Đúng',
+                                        denyButtonText: `Không`,
+                                    }).then((result) => {
+                                        /* Read more about isConfirmed, isDenied below */
+                                        if (result.isConfirmed) {
+                                            formData.append('replace', 1);
+                                            $.ajax({
+                                                type: "post",
+                                                url: "/products",
+                                                data: formData,
+                                                contentType: false,
+                                                processData: false,
+                                                cache: false,
+                                                dataType: "JSON",
+                                                success: function(res) {
+                                                    if (res.check == true) {
+                                                        Toast.fire({
+                                                            icon: 'success',
+                                                            title: 'Thêm sản phẩm thành công'
+                                                        }).then(() => {
+                                                            window
+                                                                .location
+                                                                .reload();
+                                                        })
+                                                    }
+                                                    if (res.image) {
+                                                        Swal.fire({
+                                                            text: 'Muốn thay thế hình ảnh trùng tên ?',
+                                                            showDenyButton: true,
+                                                            showCancelButton: false,
+                                                            confirmButtonText: 'Đúng',
+                                                            denyButtonText: `Không`,
+                                                        }).then((
+                                                            result) => {
+                                                                /* Read more about isConfirmed, isDenied below */
+                                                                if (result
+                                                                    .isConfirmed
+                                                                    ) {
+                                                                    Swal.fire(
+                                                                        'Saved!',
+                                                                        '',
+                                                                        'success'
+                                                                        )
+                                                                } else if (
+                                                                    result
+                                                                    .isDenied
+                                                                    ) {}
+                                                            })
+                                                    } else if (res.msg
+                                                        .name) {
+                                                        Toast.fire({
+                                                            icon: 'error',
+                                                            title: res
+                                                                .msg
+                                                                .name
+                                                        })
+                                                    } else if (res.msg
+                                                        .quantity) {
+                                                        Toast.fire({
+                                                            icon: 'error',
+                                                            title: res
+                                                                .msg
+                                                                .quantity
+                                                        })
+                                                    } else if (res.msg
+                                                        .price) {
+                                                        Toast.fire({
+                                                            icon: 'error',
+                                                            title: res
+                                                                .msg
+                                                                .price
+                                                        })
+                                                    } else if (res.msg
+                                                        .discount) {
+                                                        Toast.fire({
+                                                            icon: 'error',
+                                                            title: res
+                                                                .msg
+                                                                .discount
+                                                        })
+                                                    } else if (res.msg
+                                                        .content) {
+                                                        Toast.fire({
+                                                            icon: 'error',
+                                                            title: res
+                                                                .msg
+                                                                .content
+                                                        })
+                                                    } else if (res.msg) {
+                                                        Toast.fire({
+                                                            icon: 'error',
+                                                            title: res
+                                                                .msg
+                                                        })
+
+                                                    }
+                                                }
+                                            });
+                                        } else if (result.isDenied) {}
+                                    })
+                                } else if (res.msg.name) {
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: res.msg.name
+                                    })
+                                } else if (res.msg.quantity) {
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: res.msg.quantity
+                                    })
+                                } else if (res.msg.price) {
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: res.msg.price
+                                    })
+                                } else if (res.msg.discount) {
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: res.msg.discount
+                                    })
+                                } else if (res.msg.content) {
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: res.msg.content
+                                    })
+                                } else if (res.msg) {
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: res.msg
+                                    })
+
+                                }
                             }
-                            if (res.msg - name) {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: res.msg - name
-                                })
-                            }
-                        }
-                    });
+                        });
+                    }
+
 
                 });
             });
