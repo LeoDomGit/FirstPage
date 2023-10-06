@@ -57,7 +57,6 @@ class ProductController extends Controller
         }
         if(!isset($_FILES['file'])){
             return response()->json(['check'=>false,'msg'=>'Thiếu hình ảnh']);
-            // $validation->errors()->add('image', 'Thiếu hình ảnh sản phẩm');
         }
         if(file_exists(public_path('images/'.$_FILES['file']['name']))){
            if(isset($_POST['replace'])&& $_POST['replace']==1){
