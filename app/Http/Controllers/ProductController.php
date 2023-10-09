@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\brandM;
 use App\Models\cateM;
 use Illuminate\Support\Facades\Validator;
+use DB;
 class ProductController extends Controller
 {
     /**
@@ -16,7 +17,12 @@ class ProductController extends Controller
     {
         $brands = brandM::where('status', '=', 1)->select('id', 'name')->get();
         $cates = cateM::where('status', '=', 1)->select('id', 'name')->get();
-        return view('products.index',compact('brands','cates'));
+        $products = DB::table('products')->join('brands_tbl','products.idBrand','=','brands_tbl.id')
+        ->join('categrories_tbl','products.idCate','=','categrories_tbl.id')
+        ->select('products.*','categrories_tbl.name as catename','brands_tbl.name as brandname')
+        ->get();
+        $url = 'http://127.0.0.1:8000/images/';
+        return view('products.index',compact('brands','cates','products','url'));
     }
 
     /**
@@ -61,7 +67,7 @@ class ProductController extends Controller
         if(file_exists(public_path('images/'.$_FILES['file']['name']))){
            if(isset($_POST['replace'])&& $_POST['replace']==1){
                 move_uploaded_file($_FILES['file']['tmp_name'],'images/'.$_FILES['file']['name']);
-                productM::create(['name'=>$request->name,'price'=>$request->price,'discount'=>$request->discount,'idBrand'=>$request->idBrand,'idCate'=>$request->idCate,'images'=>$_FILES['file']['name'],'content'=>$request->content]);
+                productM::create(['name'=>$request->name,'price'=>$request->price,'discount'=>$request->discount,'idBrand'=>$request->idBrand,'quantity'=>$request->quantity,'idCate'=>$request->idCate,'images'=>$_FILES['file']['name'],'content'=>$request->content]);
                 return response()->json(['check'=>true]);
            }else{
             return response()->json(['check'=>false,'image'=>true]);
@@ -69,7 +75,7 @@ class ProductController extends Controller
            }
         }else{
             move_uploaded_file($_FILES['file']['tmp_name'],'images/'.$_FILES['file']['name']);
-            productM::create(['name'=>$request->name,'price'=>$request->price,'discount'=>$request->discount,'idBrand'=>$request->idBrand,'idCate'=>$request->idCate,'images'=>$_FILES['file']['name'],'content'=>$request->content]);
+            productM::create(['name'=>$request->name,'price'=>$request->price,'discount'=>$request->discount,'idBrand'=>$request->idBrand,'quantity'=>$request->quantity,'idCate'=>$request->idCate,'images'=>$_FILES['file']['name'],'content'=>$request->content]);
             return response()->json(['check'=>true]);
         }
 
@@ -86,9 +92,20 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(productM $productM)
+    public function edit(Request $request,productM $productM)
     {
-        //
+        $validation = Validator::make($request->all(), [
+
+            'id'=>'required|exists:products,id'
+        ],[
+            'id.required'=>'Thiếu mã sản phẩm',
+            'id.exists'=>'Mã sản phẩm không tồn tại',
+        ]); 
+        if ($validation->fails()) {
+            return response()->json(['check' => false,'msg'=>$validation->errors()]);
+        }
+        $result = productM::where('id',$request->id)->get();
+        return response()->json(['check'=>true,'product'=>$result]);
     }
 
     /**

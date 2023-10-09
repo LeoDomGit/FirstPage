@@ -87,9 +87,52 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    @if (count($products) > 0)
+        <div class="row mt-3">
+            <div class="col-md-9">
+                <div class="table-responsive">
+                    <table class="table table-primary">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Hình ảnh</th>
+                                <th scope="col">Tên sản phẩm</th>
+                                <th scope="col">Giá</th>
+                                <th scope="col">Giảm giá</th>
+                                <th scope="col">Thương hiệu</th>
+                                <th scope="col">Loại sản phẩm</th>
+                                <th scope="col">Tùy chỉnh</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($products as $key => $item)
+                            <tr class="">
+                                <td scope="row">{{++$key}}</td>
+                                <td>
+                                    {{-- <img style="height:80px; width:auto" src="{{ URL::to('/') }}/images/{{$item->images}}" alt=""> --}}
+                                    {{-- <img style="height:80px; width:auto" src="{{$url.$item->images}}" alt=""> --}}
+                                    <img style="height:80px; width:auto" src="{{url('/images/'.$item->images)}}" alt="">
+                                </td>
+                                <td>{{$item->name}}</td>
+                                <td>{{number_format($item->price)}}</td>
+                                <td>{{number_format($item->price *(100-$item->discount)/100)}}</td>
+                                <td>{{$item->brandname}}</td>
+                                <td>{{$item->catename}}</td>
+                                <td>
+                                    <button class="btn btn-warning editBtn" data-id="{{$item->id}}">Sửa</button>
+                                </td>
+                            </tr>
+                            @endforeach
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endif
 
-    </div>
+
+
 
     <script src="/dashboard/js/ckeditor/ckeditor.js"></script>
     <script>
@@ -114,10 +157,37 @@
                 }
             })
             addProduct();
+            editProduct();
             // switchProd();
         });
-
-
+        function editProduct(){
+            $(".editBtn").click(function (e) { 
+                e.preventDefault();
+                var id = $(this).attr('data-id');
+                $.ajax({
+                    type: "post",
+                    url: "/products/edit",
+                    data: {id:id},
+                    dataType: "JSON",
+                    success: function (res) {
+                        console.log(res.product);
+                        const product= res.product[0];
+                        $("#name").val(product.name);
+                        $("#quantity").val(product.quantity);
+                        $("#price").val(product.price);
+                        $("#discount").val(product.discount);
+                        $("#idBrand").val(product.idBrand);
+                        $("#idCate").val(product.idCate);
+                        CKEDITOR.instances['content'].setData(product.content);
+                        $("#productModal").modal('show');
+                        submitEditProduct();
+                    }
+                });
+            });
+        }
+        function submitEditProduct(){
+            
+        }
 
 
         function addProduct() {
@@ -207,20 +277,21 @@
                                                             confirmButtonText: 'Đúng',
                                                             denyButtonText: `Không`,
                                                         }).then((
-                                                            result) => {
+                                                                result
+                                                                ) => {
                                                                 /* Read more about isConfirmed, isDenied below */
                                                                 if (result
                                                                     .isConfirmed
-                                                                    ) {
+                                                                ) {
                                                                     Swal.fire(
                                                                         'Saved!',
                                                                         '',
                                                                         'success'
-                                                                        )
+                                                                    )
                                                                 } else if (
                                                                     result
                                                                     .isDenied
-                                                                    ) {}
+                                                                ) {}
                                                             })
                                                     } else if (res.msg
                                                         .name) {
