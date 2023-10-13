@@ -6,6 +6,8 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategroriesController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\GoogleController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -46,10 +48,13 @@ Route::middleware('checkLogin')->group(function () {
         Route::post('restoreBrand', [BrandController::class,'restore']);
         Route::post('/', [ProductController::class,'store']);
         Route::post('/edit', [ProductController::class,'edit']);
+        Route::post('/editProduct', [ProductController::class,'editProduct']);
 
     });
 
 });
+Route::get('/loginGoogle',[GoogleController::class,'redirect']);
+Route::get('auth/google/call-back', [GoogleController::class, 'callBack']);
 
 Route::get('/login',[UserController::class,'Login']);
 Route::post('/checkLogin',[UserController::class,'checkLogin']);

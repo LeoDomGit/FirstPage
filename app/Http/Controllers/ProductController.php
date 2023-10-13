@@ -8,6 +8,7 @@ use App\Models\brandM;
 use App\Models\cateM;
 use Illuminate\Support\Facades\Validator;
 use DB;
+use File;
 class ProductController extends Controller
 {
     /**
@@ -111,9 +112,67 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, productM $productM)
+    public function editProduct(Request $request, productM $productM)
     {
-        //
+        $validation = Validator::make($request->all(), [
+
+            'name'=>'required',
+            'price'=>'required|numeric',
+            'quantity'=>'required|numeric|min:0',
+            'discount'=>'required|numeric|min:0',
+            'idBrand'=>'required|exists:brands_tbl,id',
+            'idCate'=>'required|exists:categrories_tbl,id',
+            'content'=>'required',
+            'id'=>'required|exists:products,id'
+        ],[
+            'name.required'=>'Thiếu tên sản phẩm',
+            'price.required'=>'Thiếu giá sản phẩm',
+            'price.numeric'=>'Giá sản phẩm không hợp lệ',
+            'quantity.required'=>'Thiếu số lượng sản phẩm',
+            'quantity.numeric'=>'Số lượng sản phẩm không hợp lệ',
+            'quantity.min'=>'Số lượng sản phẩm >0',
+            'discount.numeric'=>'Giá sản phẩm không hợp lệ',
+            'id.required'=>'Chưa nhận được mã sản phẩm',
+            'id.exists'=>'Mã sản phẩm không tồn tại',
+        ]); 
+        if ($validation->fails()) {
+            return response()->json(['check' => false,'msg'=>$validation->errors()]);
+        }
+        if(!isset($_FILES['file'])){
+            productM::where('id',$request->id)->update(['name'=>$request->name,'price'=>$request->price,
+                    'discount'=>$request->discount,'idBrand'=>$request->idBrand,
+                    'quantity'=>$request->quantity,'idCate'=>$request->idCate,
+                    'content'=>$request->content,'updated_at'=>now()]);
+                    return response()->json(['check'=>true]);
+        }else{
+            if(file_exists(public_path('images/'.$_FILES['file']['name']))){
+                if(isset($_POST['replace'])&& $_POST['replace']==1){
+                    move_uploaded_file($_FILES['file']['tmp_name'],'images/'.$_FILES['file']['name']);
+                    productM::where('id',$request->id)->update(['name'=>$request->name,'price'=>$request->price,
+                    'discount'=>$request->discount,'idBrand'=>$request->idBrand,
+                    'quantity'=>$request->quantity,'idCate'=>$request->idCate,
+                    'images'=>$_FILES['file']['name'],
+                    'content'=>$request->content,'updated_at'=>now()]);
+                     return response()->json(['check'=>true]);
+                }else{
+                 return response()->json(['check'=>false,'image'=>true]);
+     
+                }
+             }else{
+                $image= productM::where('id',$request->id)->value('images');
+                if(file_exists(public_path('images/'.$image))){
+                    File::delete(public_path('images/'.$image));
+                }
+                 move_uploaded_file($_FILES['file']['tmp_name'],'images/'.$_FILES['file']['name']);
+                 productM::where('id',$request->id)->update(['name'=>$request->name,'price'=>$request->price,
+                 'discount'=>$request->discount,'idBrand'=>$request->idBrand,
+                 'quantity'=>$request->quantity,'idCate'=>$request->idCate,
+                 'images'=>$_FILES['file']['name'],
+                 'content'=>$request->content,'updated_at'=>now()]);
+                  return response()->json(['check'=>true]);
+             }
+        }
+        
     }
 
     /**

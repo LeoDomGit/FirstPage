@@ -34,6 +34,9 @@
                         <button class="btn btn-primary" id="submitDangNhap">Đăng nhập</button>
                     </div>
                 </div>
+                <div class="row">
+                    <a class="btn btn-warning mt-3" href="/loginGoogle">Login Google</a>
+                </div>
             </div>
         </div>
      </div>   
