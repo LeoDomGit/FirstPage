@@ -21,8 +21,9 @@ class ProductController extends Controller
         $products = DB::table('products')->join('brands_tbl','products.idBrand','=','brands_tbl.id')
         ->join('categrories_tbl','products.idCate','=','categrories_tbl.id')
         ->select('products.*','categrories_tbl.name as catename','brands_tbl.name as brandname')
-        ->get();
+        ->paginate(4);
         $url = 'http://127.0.0.1:8000/images/';
+        // echo $products['lastPage'];
         return view('products.index',compact('brands','cates','products','url'));
     }
 
@@ -81,7 +82,28 @@ class ProductController extends Controller
         }
 
     }
+// ======================================
+    public function deleteProduct(Request $request,productM $productM){
+        $validation = Validator::make($request->all(), [
 
+            'id'=>'required|exists:products,id',
+          
+        ],[
+            'id.required'=>'Thiếu mã sản phẩm',
+            'id.exists'=>'Mã không tồn tại',
+          
+        ]); 
+        if ($validation->fails()) {
+            return response()->json(['check' => false,'msg'=>$validation->errors()]);
+        }
+        $image= productM::where('id',$request->id)->value('images');
+        if(file_exists(public_path('images/'.$image))){
+            File::delete(public_path('images/'.$image));
+        }
+        productM::where('id',$request->id)->delete();
+        return response()->json(['check'=>true]);
+
+    }
     /**
      * Display the specified resource.
      */

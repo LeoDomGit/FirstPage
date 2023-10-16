@@ -106,27 +106,55 @@
                         </thead>
                         <tbody>
                             @foreach ($products as $key => $item)
-                            <tr class="">
-                                <td scope="row">{{++$key}}</td>
-                                <td>
-                                    {{-- <img style="height:80px; width:auto" src="{{ URL::to('/') }}/images/{{$item->images}}" alt=""> --}}
-                                    {{-- <img style="height:80px; width:auto" src="{{$url.$item->images}}" alt=""> --}}
-                                    <img style="height:80px; width:auto" src="{{url('/images/'.$item->images)}}" alt="">
-                                </td>
-                                <td>{{$item->name}}</td>
-                                <td>{{number_format($item->price)}}</td>
-                                <td>{{number_format($item->price *(100-$item->discount)/100)}}</td>
-                                <td>{{$item->brandname}}</td>
-                                <td>{{$item->catename}}</td>
-                                <td>
-                                    <button class="btn btn-warning editBtn" data-id="{{$item->id}}">Sửa</button>
-                                </td>
-                            </tr>
+                                <tr class="">
+                                    <td scope="row">{{ ++$key }}</td>
+                                    <td>
+                                        {{-- <img style="height:80px; width:auto" src="{{ URL::to('/') }}/images/{{$item->images}}" alt=""> --}}
+                                        {{-- <img style="height:80px; width:auto" src="{{$url.$item->images}}" alt=""> --}}
+                                        <img style="height:80px; width:auto" src="{{ url('/images/' . $item->images) }}"
+                                            alt="">
+                                    </td>
+                                    <td>{{ $item->name }}</td>
+                                    <td>{{ number_format($item->price) }}</td>
+                                    <td>{{ number_format(($item->price * (100 - $item->discount)) / 100) }}</td>
+                                    <td>{{ $item->brandname }}</td>
+                                    <td>{{ $item->catename }}</td>
+                                    <td>
+                                        <button class="btn btn-warning editBtn" data-id="{{ $item->id }}">Sửa</button>
+                                        <button class="btn btn-danger deleteBtn" data-id="{{ $item->id }}">Xóa</button>
+                                    </td>
+                                </tr>
                             @endforeach
-                            
+
                         </tbody>
                     </table>
                 </div>
+                <br>
+                @if ($products->lastPage()>1)
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        @if (isset($_GET['page'])&&$_GET['page']>1)
+                        <li class="page-item"><a class="page-link" href="?page=<?=($_GET['page']-1)?>">Previous</a></li>
+    
+                        @else
+                        <li class="page-item"><a class="page-link" href="?page=1">Previous</a></li>
+    
+                        @endif
+                      <?php $i=1;?>
+                      @while ($i<$products->lastPage()+1)
+                      <li class="page-item"><a class="page-link" href="?page={{$i}}">{{$i}}</a></li>
+                      <?php $i++?>                      
+                      @endwhile
+                      @if (isset($_GET['page'])&&$_GET['page']<$products->lastPage())
+                        <li class="page-item"><a class="page-link" href="?page=<?=($_GET['page']+1)?>">Next</a></li>
+                      @else
+                      <li class="page-item"><a class="page-link" href="#">Next</a></li>
+    
+                      @endif
+                    </ul>
+                  </nav>
+                @endif
+ 
             </div>
         </div>
     @endif
@@ -158,20 +186,66 @@
             })
             addProduct();
             editProduct();
-            // switchProd();
+            deleteProduct();
         });
-        function editProduct(){
-            $(".editBtn").click(function (e) { 
+
+        function deleteProduct() {
+            $(".deleteBtn").click(function(e) {
+                e.preventDefault();
+                var id = $(this).attr('data-id');
+                Swal.fire({
+                    icon: 'question',
+                    text: 'Xóa sản phẩm?',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Đúng',
+                    denyButtonText: `Không`,
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "post",
+                            url: "/products/deleteProduct",
+                            data: {
+                                id: id,
+                            },
+                            dataType: "JSON",
+                            success: function(res) {
+                                if (res.check == true) {
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: 'Đã xóa thành công'
+                                    }).then(() => {
+                                        window.location.reload();
+                                    })
+                                }
+                                if (res.msg.id) {
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: res.msg.id
+                                    })
+                                }
+                            }
+                        });
+                    } else if (result.isDenied) {}
+                })
+            });
+        }
+        // ===============================
+        function editProduct() {
+            $(".editBtn").click(function(e) {
                 e.preventDefault();
                 var id = $(this).attr('data-id');
                 $.ajax({
                     type: "post",
                     url: "/products/edit",
-                    data: {id:id},
+                    data: {
+                        id: id
+                    },
                     dataType: "JSON",
-                    success: function (res) {
+                    success: function(res) {
                         console.log(res.product);
-                        const product= res.product[0];
+                        const product = res.product[0];
                         $("#name").val(product.name);
                         $("#quantity").val(product.quantity);
                         $("#price").val(product.price);
@@ -185,8 +259,9 @@
                 });
             });
         }
-        function submitEditProduct(id){
-            $("#submitProductBtn").click(function (e) { 
+
+        function submitEditProduct(id) {
+            $("#submitProductBtn").click(function(e) {
                 e.preventDefault();
                 var name = $("#name").val().trim();
                 var price = $("#price").val().trim();
@@ -196,33 +271,32 @@
                 var idCate = $("#idCate option:selected").val();
                 var file = $("#file")[0].files;
                 var content = CKEDITOR.instances.content.getData();
-                if(name==''){
+                if (name == '') {
                     Toast.fire({
-                            icon: 'error',
-                            title: 'Thiếu tên sản phẩm'
-                        })
-                }else if(price==''||price<=0){
+                        icon: 'error',
+                        title: 'Thiếu tên sản phẩm'
+                    })
+                } else if (price == '' || price <= 0) {
                     Toast.fire({
-                            icon: 'error',
-                            title: 'Giá sản phẩm không hợp lệ'
-                        })
-                }else if(quantity==''||quantity<=0){
+                        icon: 'error',
+                        title: 'Giá sản phẩm không hợp lệ'
+                    })
+                } else if (quantity == '' || quantity <= 0) {
                     Toast.fire({
-                            icon: 'error',
-                            title: 'Số lượng sản phẩm không hợp lệ'
-                        })
-                }else if(discount<0||discount>100){
+                        icon: 'error',
+                        title: 'Số lượng sản phẩm không hợp lệ'
+                    })
+                } else if (discount < 0 || discount > 100) {
                     Toast.fire({
-                            icon: 'error',
-                            title: 'Giảm giá không hợp lệ'
-                        })
-                }else if(content==''){
+                        icon: 'error',
+                        title: 'Giảm giá không hợp lệ'
+                    })
+                } else if (content == '') {
                     Toast.fire({
-                            icon: 'error',
-                            title: 'Thiếu nội dung sản phẩm'
-                        })
-                }
-                else if(file.length==0){
+                        icon: 'error',
+                        title: 'Thiếu nội dung sản phẩm'
+                    })
+                } else if (file.length == 0) {
                     var formData = new FormData();
                     formData.append('name', name);
                     formData.append('price', price);
@@ -233,26 +307,26 @@
                     formData.append('content', content);
                     formData.append('id', id);
                     $.ajax({
-                            type: "post",
-                            url: "/products/editProduct",
-                            data: formData,
-                            contentType: false,
-                            processData: false,
-                            cache: false,
-                            dataType: "JSON",
-                            success: function(res) {
-                                if (res.check == true) {
-                                    Toast.fire({
-                                        icon: 'success',
-                                        title: 'Sửa sản phẩm thành công'
-                                    }).then(() => {
-                                        window.location.reload();
-                                    })
-                                }
+                        type: "post",
+                        url: "/products/editProduct",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        dataType: "JSON",
+                        success: function(res) {
+                            if (res.check == true) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Sửa sản phẩm thành công'
+                                }).then(() => {
+                                    window.location.reload();
+                                })
                             }
+                        }
                     });
-                    
-                }else {
+
+                } else {
                     var formData = new FormData();
                     formData.append('name', name);
                     formData.append('price', price);
@@ -264,161 +338,161 @@
                     formData.append('content', content);
                     formData.append('id', id);
                     $.ajax({
-                            type: "post",
-                            url: "/products/editProduct",
-                            data: formData,
-                            contentType: false,
-                            processData: false,
-                            cache: false,
-                            dataType: "JSON",
-                            success: function(res) {
-                                if (res.check == true) {
-                                    Toast.fire({
-                                        icon: 'success',
-                                        title: 'Sửa sản phẩm thành công'
-                                    }).then(() => {
-                                        window.location.reload();
-                                    })
-                                }
-                                if (res.image) {
-                                    Swal.fire({
-                                        text: 'Muốn thay thế hình ảnh trùng tên ?',
-                                        showDenyButton: true,
-                                        showCancelButton: false,
-                                        confirmButtonText: 'Đúng',
-                                        denyButtonText: `Không`,
-                                    }).then((result) => {
-                                        /* Read more about isConfirmed, isDenied below */
-                                        if (result.isConfirmed) {
-                                            formData.append('replace', 1);
-                                            $.ajax({
-                                                type: "post",
-                                                url: "/products/editProduct",
-                                                data: formData,
-                                                contentType: false,
-                                                processData: false,
-                                                cache: false,
-                                                dataType: "JSON",
-                                                success: function(res) {
-                                                    if (res.check == true) {
-                                                        Toast.fire({
-                                                            icon: 'success',
-                                                            title: 'Sửa sản phẩm thành công'
-                                                        }).then(() => {
-                                                            window
-                                                                .location
-                                                                .reload();
-                                                        })
-                                                    }
-                                                    if (res.image) {
-                                                        Swal.fire({
-                                                            text: 'Muốn thay thế hình ảnh trùng tên ?',
-                                                            showDenyButton: true,
-                                                            showCancelButton: false,
-                                                            confirmButtonText: 'Đúng',
-                                                            denyButtonText: `Không`,
-                                                        }).then((
-                                                                result
-                                                                ) => {
-                                                                /* Read more about isConfirmed, isDenied below */
-                                                                if (result
-                                                                    .isConfirmed
-                                                                ) {
-                                                                    Swal.fire(
-                                                                        'Saved!',
-                                                                        '',
-                                                                        'success'
-                                                                    )
-                                                                } else if (
-                                                                    result
-                                                                    .isDenied
-                                                                ) {}
-                                                            })
-                                                    } else if (res.msg
-                                                        .name) {
-                                                        Toast.fire({
-                                                            icon: 'error',
-                                                            title: res
-                                                                .msg
-                                                                .name
-                                                        })
-                                                    } else if (res.msg
-                                                        .quantity) {
-                                                        Toast.fire({
-                                                            icon: 'error',
-                                                            title: res
-                                                                .msg
-                                                                .quantity
-                                                        })
-                                                    } else if (res.msg
-                                                        .price) {
-                                                        Toast.fire({
-                                                            icon: 'error',
-                                                            title: res
-                                                                .msg
-                                                                .price
-                                                        })
-                                                    } else if (res.msg
-                                                        .discount) {
-                                                        Toast.fire({
-                                                            icon: 'error',
-                                                            title: res
-                                                                .msg
-                                                                .discount
-                                                        })
-                                                    } else if (res.msg
-                                                        .content) {
-                                                        Toast.fire({
-                                                            icon: 'error',
-                                                            title: res
-                                                                .msg
-                                                                .content
-                                                        })
-                                                    } else if (res.msg) {
-                                                        Toast.fire({
-                                                            icon: 'error',
-                                                            title: res
-                                                                .msg
-                                                        })
-
-                                                    }
-                                                }
-                                            });
-                                        } else if (result.isDenied) {}
-                                    })
-                                } else if (res.msg.name) {
-                                    Toast.fire({
-                                        icon: 'error',
-                                        title: res.msg.name
-                                    })
-                                } else if (res.msg.quantity) {
-                                    Toast.fire({
-                                        icon: 'error',
-                                        title: res.msg.quantity
-                                    })
-                                } else if (res.msg.price) {
-                                    Toast.fire({
-                                        icon: 'error',
-                                        title: res.msg.price
-                                    })
-                                } else if (res.msg.discount) {
-                                    Toast.fire({
-                                        icon: 'error',
-                                        title: res.msg.discount
-                                    })
-                                } else if (res.msg.content) {
-                                    Toast.fire({
-                                        icon: 'error',
-                                        title: res.msg.content
-                                    })
-                                } else if (res.msg) {
-                                    Toast.fire({
-                                        icon: 'error',
-                                        title: res.msg
-                                    })
-
-                                }
+                        type: "post",
+                        url: "/products/editProduct",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        dataType: "JSON",
+                        success: function(res) {
+                            if (res.check == true) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Sửa sản phẩm thành công'
+                                }).then(() => {
+                                    window.location.reload();
+                                })
                             }
+                            if (res.image) {
+                                Swal.fire({
+                                    text: 'Muốn thay thế hình ảnh trùng tên ?',
+                                    showDenyButton: true,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Đúng',
+                                    denyButtonText: `Không`,
+                                }).then((result) => {
+                                    /* Read more about isConfirmed, isDenied below */
+                                    if (result.isConfirmed) {
+                                        formData.append('replace', 1);
+                                        $.ajax({
+                                            type: "post",
+                                            url: "/products/editProduct",
+                                            data: formData,
+                                            contentType: false,
+                                            processData: false,
+                                            cache: false,
+                                            dataType: "JSON",
+                                            success: function(res) {
+                                                if (res.check == true) {
+                                                    Toast.fire({
+                                                        icon: 'success',
+                                                        title: 'Sửa sản phẩm thành công'
+                                                    }).then(() => {
+                                                        window
+                                                            .location
+                                                            .reload();
+                                                    })
+                                                }
+                                                if (res.image) {
+                                                    Swal.fire({
+                                                        text: 'Muốn thay thế hình ảnh trùng tên ?',
+                                                        showDenyButton: true,
+                                                        showCancelButton: false,
+                                                        confirmButtonText: 'Đúng',
+                                                        denyButtonText: `Không`,
+                                                    }).then((
+                                                        result
+                                                    ) => {
+                                                        /* Read more about isConfirmed, isDenied below */
+                                                        if (result
+                                                            .isConfirmed
+                                                        ) {
+                                                            Swal.fire(
+                                                                'Saved!',
+                                                                '',
+                                                                'success'
+                                                            )
+                                                        } else if (
+                                                            result
+                                                            .isDenied
+                                                        ) {}
+                                                    })
+                                                } else if (res.msg
+                                                    .name) {
+                                                    Toast.fire({
+                                                        icon: 'error',
+                                                        title: res
+                                                            .msg
+                                                            .name
+                                                    })
+                                                } else if (res.msg
+                                                    .quantity) {
+                                                    Toast.fire({
+                                                        icon: 'error',
+                                                        title: res
+                                                            .msg
+                                                            .quantity
+                                                    })
+                                                } else if (res.msg
+                                                    .price) {
+                                                    Toast.fire({
+                                                        icon: 'error',
+                                                        title: res
+                                                            .msg
+                                                            .price
+                                                    })
+                                                } else if (res.msg
+                                                    .discount) {
+                                                    Toast.fire({
+                                                        icon: 'error',
+                                                        title: res
+                                                            .msg
+                                                            .discount
+                                                    })
+                                                } else if (res.msg
+                                                    .content) {
+                                                    Toast.fire({
+                                                        icon: 'error',
+                                                        title: res
+                                                            .msg
+                                                            .content
+                                                    })
+                                                } else if (res.msg) {
+                                                    Toast.fire({
+                                                        icon: 'error',
+                                                        title: res
+                                                            .msg
+                                                    })
+
+                                                }
+                                            }
+                                        });
+                                    } else if (result.isDenied) {}
+                                })
+                            } else if (res.msg.name) {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: res.msg.name
+                                })
+                            } else if (res.msg.quantity) {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: res.msg.quantity
+                                })
+                            } else if (res.msg.price) {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: res.msg.price
+                                })
+                            } else if (res.msg.discount) {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: res.msg.discount
+                                })
+                            } else if (res.msg.content) {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: res.msg.content
+                                })
+                            } else if (res.msg) {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: res.msg
+                                })
+
+                            }
+                        }
                     });
                 }
             });
@@ -512,22 +586,22 @@
                                                             confirmButtonText: 'Đúng',
                                                             denyButtonText: `Không`,
                                                         }).then((
+                                                            result
+                                                        ) => {
+                                                            /* Read more about isConfirmed, isDenied below */
+                                                            if (result
+                                                                .isConfirmed
+                                                            ) {
+                                                                Swal.fire(
+                                                                    'Saved!',
+                                                                    '',
+                                                                    'success'
+                                                                )
+                                                            } else if (
                                                                 result
-                                                                ) => {
-                                                                /* Read more about isConfirmed, isDenied below */
-                                                                if (result
-                                                                    .isConfirmed
-                                                                ) {
-                                                                    Swal.fire(
-                                                                        'Saved!',
-                                                                        '',
-                                                                        'success'
-                                                                    )
-                                                                } else if (
-                                                                    result
-                                                                    .isDenied
-                                                                ) {}
-                                                            })
+                                                                .isDenied
+                                                            ) {}
+                                                        })
                                                     } else if (res.msg
                                                         .name) {
                                                         Toast.fire({

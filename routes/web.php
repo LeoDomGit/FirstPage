@@ -49,6 +49,7 @@ Route::middleware('checkLogin')->group(function () {
         Route::post('/', [ProductController::class,'store']);
         Route::post('/edit', [ProductController::class,'edit']);
         Route::post('/editProduct', [ProductController::class,'editProduct']);
+        Route::post('/deleteProduct', [ProductController::class,'deleteProduct']);
 
     });
 
