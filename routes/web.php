@@ -24,7 +24,7 @@ Route::middleware('checkLogin')->group(function () {
     // Route::get('/loaiSP',[CategroriesController::class,'index']);
 
     Route::post('/createUser',[UserController::class,'createUser']);
-    Route::get('/',[UserController::class,'index']);
+    Route::get('/',[UserController::class,'index'])->middleware('checkAdmin');
     Route::post('/addLoaiTaiKhoan',[UserController::class,'TaoLoaiTaiKhoan']);
     Route::post('/editLoaiTaiKhoan',[UserController::class,'editLoaiTaiKhoan']);
     Route::post('/deleteLoaiTaiKhoan',[UserController::class,'deleteLoaiTaiKhoan']);
@@ -40,7 +40,7 @@ Route::middleware('checkLogin')->group(function () {
         Route::post('/khoi-phuc-loaisp', 'restore');
     });
     Route::prefix('products')->name('products.')->group(function () {
-        Route::get('/', [ProductController::class,'index']);
+        Route::get('/', [ProductController::class,'index'])->name('index');
         Route::get('brands', [BrandController::class,'index']);
         Route::post('brands', [BrandController::class,'store']);
         Route::post('editBrands', [BrandController::class,'update'])->name('editBrands');
