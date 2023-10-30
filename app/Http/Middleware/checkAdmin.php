@@ -20,8 +20,12 @@ class checkAdmin
         $id= DB::Table('userroles')
         ->where('name','=','Admin')
         ->value('id');
+        
         if($idRole!=$id){
-            return  redirect('/products');
+            echo "Not admin";
+            // return  redirect('/products');
+        }else{
+            echo "admin";
         }
         return $next($request);
     }
