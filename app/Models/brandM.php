@@ -9,6 +9,6 @@ class brandM extends Model
 {
     use SoftDeletes;
     use HasFactory;
-    protected $table="brands_tbl";
+    protected $table="brands";
     protected $fillable=['id','name','status','created_at','updated_at','deleted_at'];
 }

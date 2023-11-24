@@ -13,7 +13,7 @@ class BrandController extends Controller
      */
     public function index()
     {
-        $brands = DB::table('brands_tbl')->get();
+        $brands = DB::table('brands')->get();
         return view('brands.index', compact('brands'));
     }
 
@@ -32,7 +32,7 @@ class BrandController extends Controller
     {
         $validation = Validator::make($request->all(), [
 
-            'name'=>'required|unique:brands_tbl,name',
+            'name'=>'required|unique:brands,name',
         ],[
             
             'name.required'=>'Thiếu tên thương hiệu sản phẩm',
@@ -50,8 +50,8 @@ class BrandController extends Controller
     public function update(Request $request , brandM $brandM)
     {
         $validation = Validator::make($request->all(), [
-            'id'=>'required|exists:brands_tbl,id',
-            'name'=>'required|unique:brands_tbl,name',
+            'id'=>'required|exists:brands,id',
+            'name'=>'required|unique:brands,name',
         ],[
             'id.required'=>'Thiếu mã thương hiệu',
             'id.exists'=>'Mã thương hiệu không tồn tại',
@@ -78,7 +78,7 @@ class BrandController extends Controller
     public function restore(Request $request,brandM $brandM)
     {
         $validation = Validator::make($request->all(), [
-            'id'=>'required|exists:brands_tbl,id',
+            'id'=>'required|exists:brands,id',
         ],[
             'id.required'=>'Thiếu mã thương hiệu',
             'id.exists'=>'Mã thương hiệu không tồn tại',
@@ -95,7 +95,7 @@ class BrandController extends Controller
     public function destroy(Request $request,brandM $brandM)
     {
         $validation = Validator::make($request->all(), [
-            'id'=>'required|exists:brands_tbl,id',
+            'id'=>'required|exists:brands,id',
         ],[
             'id.required'=>'Thiếu mã thương hiệu',
             'id.exists'=>'Mã thương hiệu không tồn tại'

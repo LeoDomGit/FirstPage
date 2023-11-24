@@ -17,7 +17,7 @@ class checkAdmin
     public function handle(Request $request, Closure $next): Response
     {
         $idRole = Auth::user()->idRole;
-        $id= DB::Table('userroles')
+        $id= DB::Table('roles')
         ->where('name','=','Admin')
         ->value('id');
         

@@ -18,9 +18,9 @@ class ProductController extends Controller
     {
         $brands = brandM::where('status', '=', 1)->select('id', 'name')->get();
         $cates = cateM::where('status', '=', 1)->select('id', 'name')->get();
-        $products = DB::table('products')->join('brands_tbl','products.idBrand','=','brands_tbl.id')
-        ->join('categrories_tbl','products.idCate','=','categrories_tbl.id')
-        ->select('products.*','categrories_tbl.name as catename','brands_tbl.name as brandname')
+        $products = DB::table('products')->join('brands','products.idBrand','=','brands.id')
+        ->join('categrories','products.idCate','=','categrories.id')
+        ->select('products.*','categrories.name as catename','brands.name as brandname')
         ->paginate(4);
         $url = 'http://127.0.0.1:8000/images/';
         // echo $products['lastPage'];
@@ -46,8 +46,8 @@ class ProductController extends Controller
             'price'=>'required|numeric',
             'quantity'=>'required|numeric|min:0',
             'discount'=>'required|numeric|min:0',
-            'idBrand'=>'required|exists:brands_tbl,id',
-            'idCate'=>'required|exists:categrories_tbl,id',
+            'idBrand'=>'required|exists:brands,id',
+            'idCate'=>'required|exists:categrories,id',
             'content'=>'required',
             'file'=>'required'
         ],[
@@ -142,8 +142,8 @@ class ProductController extends Controller
             'price'=>'required|numeric',
             'quantity'=>'required|numeric|min:0',
             'discount'=>'required|numeric|min:0',
-            'idBrand'=>'required|exists:brands_tbl,id',
-            'idCate'=>'required|exists:categrories_tbl,id',
+            'idBrand'=>'required|exists:brands,id',
+            'idCate'=>'required|exists:categrories,id',
             'content'=>'required',
             'id'=>'required|exists:products,id'
         ],[
@@ -197,6 +197,16 @@ class ProductController extends Controller
         
     }
 
+
+
+    // ===========================================
+    public function getProductAPI(){
+        $result = DB::Table('products')->join('brands','products.idBrand','=','brands.id')
+        ->join('categrories','products.idCate','=','categrories.id')
+        ->select('products.*','categrories.name as catename','brands.name as brandname')
+        ->paginate(3);
+        return response()->json($result);
+    }
     /**
      * Remove the specified resource from storage.
      */
