@@ -17,6 +17,12 @@ class BrandController extends Controller
         return view('brands.index', compact('brands'));
     }
 
+    // ===========================================
+    public function getBrandAPI(){
+        $brands= brandM::where('status',1)->select('id','name')->get();
+        return  response()->json($brands);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
