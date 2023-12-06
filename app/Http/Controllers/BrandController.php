@@ -20,7 +20,7 @@ class BrandController extends Controller
     // ===========================================
     public function getBrandAPI(){
         $brands= brandM::where('status',1)->select('id','name')->get();
-        return  response()->json($brands);
+        return response()->json($brands);
     }
 
     /**
