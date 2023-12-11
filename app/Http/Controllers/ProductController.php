@@ -11,6 +11,12 @@ use DB;
 use File;
 class ProductController extends Controller
 {
+    // =================================
+    public function getProductAPI(){
+        $products = DB::Table('products')->inRandomOrder()->select('id','name','price','discount','images')->take(4)->get();
+        // $products = DB::Table('products')->orderBy('id','desc')->select('id','name','price','discount','images')->take(6)->get();
+        return response()->json($products);
+    }
     /**
      * Display a listing of the resource.
      */
@@ -199,14 +205,14 @@ class ProductController extends Controller
 
 
 
-    // ===========================================
-    public function getProductAPI(){
-        $result = DB::Table('products')->join('brands','products.idBrand','=','brands.id')
-        ->join('categrories','products.idCate','=','categrories.id')
-        ->select('products.*','categrories.name as catename','brands.name as brandname')
-        ->paginate(3);
-        return response()->json($result);
-    }
+    // // ===========================================
+    // public function getProductAPI(){
+    //     $result = DB::Table('products')->join('brands','products.idBrand','=','brands.id')
+    //     ->join('categrories','products.idCate','=','categrories.id')
+    //     ->select('products.*','categrories.name as catename','brands.name as brandname')
+    //     ->paginate(3);
+    //     return response()->json($result);
+    // }
     /**
      * Remove the specified resource from storage.
      */

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Validator;
 use App\Models\cateM;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 class CategroriesController extends Controller
 {
     /**
@@ -15,7 +15,12 @@ class CategroriesController extends Controller
         $cates= cateM::withTrashed()->get();
         return view('cates.index',compact('cates'));
     }
-
+// =====================================================
+    public function getCateAPI(Request $request){
+        $cates = DB::Table('categrories')->where('status',1)
+        ->select('id','name')->get();
+        return response()->json($cates);
+    }
     /**
      * Show the form for creating a new resource.
      */
