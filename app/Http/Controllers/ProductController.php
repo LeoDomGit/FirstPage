@@ -11,6 +11,16 @@ use DB;
 use File;
 class ProductController extends Controller
 {
+
+    //=================================
+    public function getSingleProductAPI($id){
+        $product= DB::table('products')
+        ->join('brands','products.idBrand','=','brands.id')
+        ->join('categrories','products.idCate','=','categrories.id')
+        ->where('products.id','=',$id)->select('products.*','brands.name as brand','categrories.name as cate')->first();
+        $gallery = DB::table('products_images')->where('idProduct',$id)->select('images')->get();
+        return response()->json(['product'=>$product,'gallery'=>$gallery]);
+    }
     // =================================
     public function getProductAPI(){
         $products = DB::Table('products')->inRandomOrder()->select('id','name','price','discount','images')->take(4)->get();

@@ -24,3 +24,4 @@ Route::get('/products', [ProductController::class,'getProductAPI']);
 Route::get('/brands', [BrandController::class,'getBrandAPI']);
 Route::get('/categrories', [CategroriesController::class,'getCateAPI']);
 Route::get('/products', [ProductController::class,'getProductAPI']);
+Route::get('/product/{id}', [ProductController::class,'getSingleProductAPI']);
