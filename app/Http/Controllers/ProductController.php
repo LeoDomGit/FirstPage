@@ -11,7 +11,12 @@ use DB;
 use File;
 class ProductController extends Controller
 {
-
+//====================================
+    public function brandproductsAPI($id){
+        $idBrand = productM::where('id',$id)->value('idBrand');
+         $products = DB::Table('products')->where('idBrand',$idBrand)->select('id','name','price','discount','images')->take(4)->get();
+         return response()->json($products);
+    }
     //=================================
     public function getSingleProductAPI($id){
         $product= DB::table('products')
